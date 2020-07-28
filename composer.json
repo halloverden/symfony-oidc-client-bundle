@@ -1,0 +1,24 @@
+{
+    "name": "halloverden/symfony-oidc-client-bundle",
+    "description": "OpenID Connect client bundle for symfony",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tom Roar Furunes",
+            "email": "tom.roar@halloverden.no"
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": "^7.3",
+        "symfony/framework-bundle": "^4.4|^5.0",
+        "halloverden/symfony-oidc-contracts": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "HalloVerden\\Oidc\\ClientBundle\\": ""
+        }
+    }
+}
