@@ -28,7 +28,6 @@ class Configuration implements ConfigurationInterface {
               ->scalarNode('openid_configuration_endpoint')->defaultNull()->end()
               ->scalarNode('response_type')->defaultValue('code')->end()
               ->scalarNode('response_mode')->defaultNull()->end()
-              ->booleanNode('pkce')->defaultTrue()->end()
               ->scalarNode('scope')->defaultValue('openid')->end()
             ->end()
           ->end()
@@ -43,15 +42,6 @@ class Configuration implements ConfigurationInterface {
       ->end();
 
     return $treeBuilder;
-  }
-
-  /**
-   * @param array $config
-   *
-   * @return bool
-   */
-  private function isAuthenticationEnabled(array $config): bool {
-    return (true === $config['authentication']['access_token']['enabled'] || true === $config['authentication']['client_credentials_access_token']['enabled']);
   }
 
 }

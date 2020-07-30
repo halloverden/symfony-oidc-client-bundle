@@ -42,11 +42,6 @@ class ClientConfiguration {
   private $responseMode;
 
   /**
-   * @var bool
-   */
-  private $pkce;
-
-  /**
    * @var string
    */
   private $scope;
@@ -185,23 +180,6 @@ class ClientConfiguration {
    */
   public function setResponseMode(?string $responseMode): self {
     $this->responseMode = $responseMode;
-    return $this;
-  }
-
-  /**
-   * @return bool
-   */
-  public function isPkce(): bool {
-    return $this->pkce;
-  }
-
-  /**
-   * @param bool $pkce
-   *
-   * @return self
-   */
-  public function setPkce(bool $pkce): self {
-    $this->pkce = $pkce;
     return $this;
   }
 
