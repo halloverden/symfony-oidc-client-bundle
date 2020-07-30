@@ -1,0 +1,13 @@
+services:
+    HalloVerden\Oidc\ClientBundle\Interfaces\OpenIdProviderRegistryServiceInterface:
+        class: HalloVerden\Oidc\ClientBundle\Services\OpenIdProviderRegistryService
+        arguments:
+            $openIdProviderServices: !tagged 'hv.oidc.openid_provider_service'
+
+    HalloVerden\Security\Interfaces\OauthTokenProviderServiceInterface:
+        class: HalloVerden\Oidc\ClientBundle\Services\OauthTokenProviderService
+
+    HalloVerden\Security\Interfaces\OauthJwkSetProviderServiceInterface:
+        class: HalloVerden\Oidc\ClientBundle\Services\OauthJwkSetProviderService
+        arguments:
+            $openIdProviderRegistryService: '@HalloVerden\Oidc\ClientBundle\Interfaces\OpenIdProviderRegistryServiceInterface'
