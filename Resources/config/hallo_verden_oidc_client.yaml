@@ -1,0 +1,13 @@
+hallo_verden_oidc_client:
+    client_configurations:
+        test:
+            issuer: 'http://test.com'
+            client_id: 'blablabla'
+            client_secret: 'lalala'
+            redirect_uri: 'http://localhost'
+            openid_configuration_endpoint: 'http://test.com/.well-known/openid-configuration'
+            response_type: 'code'
+            response_mode: null
+            pkce: true
+            scope: 'openid'
+    default_client_configuration: test
