@@ -4,8 +4,6 @@
 namespace HalloVerden\Oidc\ClientBundle\Client;
 
 
-use HalloVerden\Oidc\ClientBundle\Provider\ProviderConfiguration;
-
 class ClientConfiguration {
 
   /**
@@ -52,11 +50,6 @@ class ClientConfiguration {
    * @var string
    */
   private $scope;
-
-  /**
-   * @var ProviderConfiguration|null
-   */
-  private $openIdProviderConfiguration;
 
   /**
    * ClientConfiguration constructor.
@@ -226,23 +219,6 @@ class ClientConfiguration {
    */
   public function setScope(string $scope): self {
     $this->scope = $scope;
-    return $this;
-  }
-
-  /**
-   * @return ProviderConfiguration|null
-   */
-  public function getOpenIdProviderConfiguration(): ?ProviderConfiguration {
-    return $this->openIdProviderConfiguration;
-  }
-
-  /**
-   * @param ProviderConfiguration|null $openIdProviderConfiguration
-   *
-   * @return self
-   */
-  public function setOpenIdProviderConfiguration(?ProviderConfiguration $openIdProviderConfiguration): self {
-    $this->openIdProviderConfiguration = $openIdProviderConfiguration;
     return $this;
   }
 
