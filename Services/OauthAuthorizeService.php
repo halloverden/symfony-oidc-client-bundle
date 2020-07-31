@@ -253,7 +253,7 @@ class OauthAuthorizeService implements OauthAuthorizeServiceInterface {
    * @return RedirectResponse
    */
   private function handleErrorException(OauthAuthorizeException $exception): RedirectResponse {
-    $this->dispatcher->dispatch(new AuthorizationErrorEvent($exception));
+    $this->dispatcher->dispatch(new AuthorizationErrorEvent($this->openIdProviderService, $exception));
     return new RedirectResponse($this->createErrorUrl($exception));
   }
 }
