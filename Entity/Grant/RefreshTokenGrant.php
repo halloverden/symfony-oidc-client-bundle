@@ -28,7 +28,7 @@ class RefreshTokenGrant implements OidcGrantInterface {
    */
   public function getRequestData(): array {
     return [
-      'refresh_token'
+      'refresh_token' => $this->refreshToken
     ];
   }
 
