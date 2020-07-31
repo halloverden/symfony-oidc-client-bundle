@@ -7,14 +7,15 @@ namespace HalloVerden\Oidc\ClientBundle\Events;
 use HalloVerden\Contracts\Oidc\Tokens\OidcAccessTokenInterface;
 use HalloVerden\Contracts\Oidc\Tokens\OidcIdTokenInterface;
 use HalloVerden\Contracts\Oidc\Tokens\OidcRefreshTokenInterface;
+use HalloVerden\Oidc\ClientBundle\Interfaces\OpenIdProviderServiceInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class AuthorizedEvent extends Event {
 
   /**
-   * @var string
+   * @var OpenIdProviderServiceInterface
    */
-  private $issuer;
+  private $openIdServiceProviderService;
 
   /**
    * @var OidcAccessTokenInterface
@@ -34,23 +35,23 @@ class AuthorizedEvent extends Event {
   /**
    * AuthorizedEvent constructor.
    *
-   * @param string                         $issuer
+   * @param OpenIdProviderServiceInterface $openIdProviderService
    * @param OidcAccessTokenInterface       $accessToken
    * @param OidcIdTokenInterface|null      $idToken
    * @param OidcRefreshTokenInterface|null $refreshToken
    */
-  public function __construct(string $issuer, OidcAccessTokenInterface $accessToken, ?OidcIdTokenInterface $idToken = null, ?OidcRefreshTokenInterface $refreshToken = null) {
-    $this->issuer = $issuer;
+  public function __construct(OpenIdProviderServiceInterface $openIdProviderService, OidcAccessTokenInterface $accessToken, ?OidcIdTokenInterface $idToken = null, ?OidcRefreshTokenInterface $refreshToken = null) {
+    $this->openIdServiceProviderService = $openIdProviderService;
     $this->accessToken = $accessToken;
     $this->idToken = $idToken;
     $this->refreshToken = $refreshToken;
   }
 
   /**
-   * @return string
+   * @return OpenIdProviderServiceInterface
    */
-  public function getIssuer(): string {
-    return $this->issuer;
+  public function getOpenIdServiceProviderService(): OpenIdProviderServiceInterface {
+    return $this->openIdServiceProviderService;
   }
 
   /**

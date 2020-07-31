@@ -112,7 +112,7 @@ class OauthAuthorizeService implements OauthAuthorizeServiceInterface {
       }
 
       $this->dispatcher->dispatch(new AuthorizedEvent(
-        $this->openIdProviderService->getClientConfiguration()->getIssuer(),
+        $this->openIdProviderService,
         $tokenResponse->getAccessToken(),
         $tokenResponse->getIdToken(),
         $tokenResponse->getRefreshToken()
