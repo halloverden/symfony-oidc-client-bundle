@@ -81,16 +81,23 @@ class OauthAuthorizeService implements OauthAuthorizeServiceInterface {
    */
   public function handleAuthorize(Request $request): RedirectResponse {
     $authorizeRequest = $this->getAuthorizeRequest($request);
-    $oauthAuthorizeRequest = $this->openIdProviderService->getAuthorizeRequest();
 
-    $this->session->set(self::SESSION_STATE_KEY, new OauthAuthorizeSession(
-      $oauthAuthorizeRequest->getStateParam(),
-      $authorizeRequest->getErrorUrl() ?: $this->authorizeSuccessUrl,
-      $authorizeRequest->getErrorUrl() ?: $this->authorizeErrorUrl,
-      $oauthAuthorizeRequest->getNonceParam()
-    ));
+    try {
+      $oauthAuthorizeRequest = $this->openIdProviderService->getAuthorizeRequest();
 
-    return new RedirectResponse($oauthAuthorizeRequest->getRequestUrl());
+      $this->session->set(self::SESSION_STATE_KEY, new OauthAuthorizeSession(
+        $oauthAuthorizeRequest->getStateParam(),
+        $authorizeRequest->getErrorUrl() ?: $this->authorizeSuccessUrl,
+        $authorizeRequest->getErrorUrl() ?: $this->authorizeErrorUrl,
+        $oauthAuthorizeRequest->getNonceParam()
+      ));
+
+      return new RedirectResponse($oauthAuthorizeRequest->getRequestUrl());
+    } catch (ProviderException $e) {
+      $response = $this->handleErrorException($this->providerExceptionToAuthorizeException($e));
+      $this->removeSession();
+      return $response;
+    }
   }
 
   /**
@@ -117,6 +124,8 @@ class OauthAuthorizeService implements OauthAuthorizeServiceInterface {
         $tokenResponse->getIdToken(),
         $tokenResponse->getRefreshToken()
       ));
+
+      return new RedirectResponse($oauthAuthorizeSession->getSuccessUrl());
     } catch (OauthAuthorizeException $exception) {
       return $this->handleErrorException($exception);
     } catch (ProviderException $e) {
@@ -125,9 +134,9 @@ class OauthAuthorizeService implements OauthAuthorizeServiceInterface {
       return $this->handleErrorException($this->tokenExceptionToAuthorizeException($e));
     } catch (\Throwable $e) {
       return $this->handleErrorException(new OauthAuthorizeException(self::ERROR_UNKNOWN_ERROR, $e->getMessage(), $e));
+    } finally {
+      $this->removeSession();
     }
-
-    return new RedirectResponse($oauthAuthorizeSession->getSuccessUrl());
   }
 
   /**
@@ -256,4 +265,12 @@ class OauthAuthorizeService implements OauthAuthorizeServiceInterface {
     $this->dispatcher->dispatch(new AuthorizationErrorEvent($this->openIdProviderService, $exception));
     return new RedirectResponse($this->createErrorUrl($exception));
   }
+
+  /**
+   * Remove session
+   */
+  private function removeSession(): void {
+    $this->session->remove(self::SESSION_STATE_KEY);
+  }
+
 }
