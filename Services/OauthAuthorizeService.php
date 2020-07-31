@@ -226,7 +226,7 @@ class OauthAuthorizeService implements OauthAuthorizeServiceInterface {
       }
     }
 
-    return new OauthAuthorizeException(self::ERROR_UNKNOWN_ERROR);
+    return new OauthAuthorizeException(self::ERROR_UNKNOWN_ERROR, null, $providerException);
   }
 
   /**
