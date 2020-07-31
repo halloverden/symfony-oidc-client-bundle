@@ -126,7 +126,8 @@ class OpenIdProviderService implements OpenIdProviderServiceInterface {
       'grant_type' => $grant->getTypeName(),
       'client_id' => $this->getClientConfiguration()->getClientId(),
       'client_secret' => $this->getClientConfiguration()->getClientSecret(),
-      'redirect_uri' => $this->getClientConfiguration()->getRedirectUri()
+      'redirect_uri' => $this->getClientConfiguration()->getRedirectUri(),
+      'scope' => $this->getClientConfiguration()->getScope(),
     ], $grant->getRequestData());
 
     try {
