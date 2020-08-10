@@ -52,22 +52,22 @@ abstract class AbstractToken implements OidcTokenInterface, OidcRawTokenInterfac
    * @return static
    */
   public static function createFromJwt(JWT $JWT, string $rawToken): self {
-    $accessToken = new static();
+    $token = new static();
 
     $claims = $JWT->claims->all();
 
     foreach ($claims as $key => $value) {
       $property = self::toCamelCase($key);
-      if (property_exists($accessToken, $property)) {
-        $accessToken->{$property} = $value;
+      if (property_exists($token, $property)) {
+        $token->{$property} = $value;
         unset($claims[$key]);
       }
     }
 
-    $accessToken->payload = $claims;
-    $accessToken->rawToken = $rawToken;
+    $token->payload = $claims;
+    $token->rawToken = $rawToken;
 
-    return $accessToken;
+    return $token;
   }
 
   /**
