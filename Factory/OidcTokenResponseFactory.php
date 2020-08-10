@@ -9,7 +9,7 @@ use HalloVerden\Contracts\Oidc\Tokens\OidcIdTokenInterface;
 use HalloVerden\Contracts\Oidc\Tokens\OidcRefreshTokenInterface;
 use HalloVerden\Contracts\Oidc\Tokens\OidcTokenInterface;
 use HalloVerden\Oidc\ClientBundle\Entity\Grant\AuthorizationCodeGrant;
-use HalloVerden\Oidc\ClientBundle\Entity\Helpers\OpenIdHashHelper;
+use HalloVerden\Oidc\ClientBundle\Helpers\OpenIdHashHelper;
 use HalloVerden\Oidc\ClientBundle\Entity\Responses\OidcTokenResponse;
 use HalloVerden\Oidc\ClientBundle\Exception\InvalidAccessTokenException;
 use HalloVerden\Oidc\ClientBundle\Exception\InvalidIdTokenException;

@@ -5,7 +5,7 @@ namespace HalloVerden\Oidc\ClientBundle\Entity\Requests\Client;
 
 use HalloVerden\Contracts\Oidc\Requests\OidcAuthenticationRequestInterface;
 use HalloVerden\Oidc\ClientBundle\Client\ClientConfiguration;
-use HalloVerden\Oidc\ClientBundle\Entity\Helpers\RandomHelper;
+use HalloVerden\Oidc\ClientBundle\Helpers\RandomHelper;
 use HalloVerden\Oidc\ClientBundle\Provider\ProviderConfiguration;
 
 /**

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace HalloVerden\Oidc\ClientBundle\Entity\Helpers;
+namespace HalloVerden\Oidc\ClientBundle\Helpers;
 
 
 class RandomHelper {

@@ -5,7 +5,7 @@ namespace HalloVerden\Oidc\ClientBundle\Services;
 
 
 use HalloVerden\Oidc\ClientBundle\Entity\Grant\AuthorizationCodeGrant;
-use HalloVerden\Oidc\ClientBundle\Entity\Helpers\UriHelper;
+use HalloVerden\Oidc\ClientBundle\Helpers\UriHelper;
 use HalloVerden\Oidc\ClientBundle\Entity\OauthAuthorizeSession;
 use HalloVerden\Oidc\ClientBundle\Entity\Requests\AuthorizeRequest;
 use HalloVerden\Oidc\ClientBundle\Entity\Requests\HandleAuthCodeRequest;

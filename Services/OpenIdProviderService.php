@@ -7,7 +7,7 @@ namespace HalloVerden\Oidc\ClientBundle\Services;
 use HalloVerden\Contracts\Oidc\OidcEndSessionResponseInterface;
 use HalloVerden\Contracts\Oidc\Requests\OidcAuthenticationRequestInterface;
 use HalloVerden\Oidc\ClientBundle\Client\ClientConfiguration;
-use HalloVerden\Oidc\ClientBundle\Entity\Helpers\UriHelper;
+use HalloVerden\Oidc\ClientBundle\Helpers\UriHelper;
 use HalloVerden\Oidc\ClientBundle\Entity\Requests\Client\OidcAuthenticationRequest;
 use HalloVerden\Oidc\ClientBundle\Entity\Responses\OidcEndSessionResponse;
 use HalloVerden\Oidc\ClientBundle\Exception\ProviderException;
