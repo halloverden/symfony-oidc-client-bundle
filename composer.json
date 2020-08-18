@@ -15,7 +15,7 @@
         "php": "^7.3",
         "symfony/framework-bundle": "^4.4|^5.0",
         "halloverden/symfony-oidc-contracts": "^1.0",
-        "halloverden/symfony-security": "^1.4",
+        "halloverden/symfony-security": "dev-feature/access-definitions-rewrite-with-definitions-in-yaml-files-and-support-scopes",
         "symfony/http-client": "^4.4|^5.0",
         "jms/serializer-bundle": "^3.7",
         "nyholm/psr7": "^1.3"
