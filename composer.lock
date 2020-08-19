@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0e888c3e511547535e4491eddb03172f",
+    "content-hash": "f74ab1e3229097db506b526b3b90b15b",
     "packages": [
         {
             "name": "doctrine/annotations",
-            "version": "1.10.3",
+            "version": "1.10.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/annotations.git",
-                "reference": "5db60a4969eba0e0c197a19c077780aadbc43c5d"
+                "reference": "bfe91e31984e2ba76df1c1339681770401ec262f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/annotations/zipball/5db60a4969eba0e0c197a19c077780aadbc43c5d",
-                "reference": "5db60a4969eba0e0c197a19c077780aadbc43c5d",
+                "url": "https://api.github.com/repos/doctrine/annotations/zipball/bfe91e31984e2ba76df1c1339681770401ec262f",
+                "reference": "bfe91e31984e2ba76df1c1339681770401ec262f",
                 "shasum": ""
             },
             "require": {
@@ -27,7 +27,8 @@
             },
             "require-dev": {
                 "doctrine/cache": "1.*",
-                "phpunit/phpunit": "^7.5"
+                "phpstan/phpstan": "^0.12.20",
+                "phpunit/phpunit": "^7.5 || ^9.1.5"
             },
             "type": "library",
             "extra": {
@@ -73,7 +74,7 @@
                 "docblock",
                 "parser"
             ],
-            "time": "2020-05-25T17:24:27+00:00"
+            "time": "2020-08-10T19:35:50+00:00"
         },
         {
             "name": "doctrine/collections",
@@ -436,16 +437,16 @@
         },
         {
             "name": "halloverden/symfony-security",
-            "version": "dev-feature/access-definitions-rewrite-with-definitions-in-yaml-files-and-support-scopes",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/halloverden/symfony-security.git",
-                "reference": "ecb2649dcbd19bbc815e55cfdedba9de869bb645"
+                "reference": "6dce0a6fbb8ed3f4c9da3136c983db8317ee66a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/halloverden/symfony-security/zipball/ecb2649dcbd19bbc815e55cfdedba9de869bb645",
-                "reference": "ecb2649dcbd19bbc815e55cfdedba9de869bb645",
+                "url": "https://api.github.com/repos/halloverden/symfony-security/zipball/6dce0a6fbb8ed3f4c9da3136c983db8317ee66a1",
+                "reference": "6dce0a6fbb8ed3f4c9da3136c983db8317ee66a1",
                 "shasum": ""
             },
             "require": {
@@ -456,10 +457,10 @@
                 "jms/metadata": "^2.1",
                 "jms/serializer": "^3.8",
                 "php": "^7.2",
-                "symfony/config": "^5.1",
+                "symfony/config": "^4.4.7|^5.0.7",
                 "symfony/security-core": "^4.4.7|^5.0.7",
                 "symfony/security-guard": "^4.4.7|^5.0.7",
-                "symfony/yaml": "^5.1",
+                "symfony/yaml": "^4.4.7|^5.0.7",
                 "web-token/jwt-easy": "^2.1",
                 "web-token/jwt-signature-algorithm-rsa": "^2.1"
             },
@@ -483,7 +484,7 @@
                 }
             ],
             "description": "Compliments Symfony Security with Access Definitions and utils",
-            "time": "2020-08-10T11:57:25+00:00"
+            "time": "2020-08-19T14:55:36+00:00"
         },
         {
             "name": "jms/metadata",
@@ -4512,9 +4513,7 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {
-        "halloverden/symfony-security": 20
-    },
+    "stability-flags": [],
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
