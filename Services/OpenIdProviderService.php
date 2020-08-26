@@ -146,7 +146,7 @@ class OpenIdProviderService implements OpenIdProviderServiceInterface {
    */
   public function revokeToken(OidcRawTokenInterface $token): void {
     try {
-      $response = $this->client->request(Request::METHOD_POST, $this->providerConfiguration->getRevocationEndpoint(), [
+      $response = $this->client->request(Request::METHOD_POST, $this->getProviderConfiguration()->getRevocationEndpoint(), [
         'body' => [
           'token' => $token->getRawToken()
         ]
