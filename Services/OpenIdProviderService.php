@@ -148,7 +148,9 @@ class OpenIdProviderService implements OpenIdProviderServiceInterface {
     try {
       $response = $this->client->request(Request::METHOD_POST, $this->getProviderConfiguration()->getRevocationEndpoint(), [
         'body' => [
-          'token' => $token->getRawToken()
+          'token' => $token->getRawToken(),
+          'client_id' => $this->getClientConfiguration()->getClientId(),
+          'client_secret' => $this->getClientConfiguration()->getClientSecret(),
         ]
       ]);
 
