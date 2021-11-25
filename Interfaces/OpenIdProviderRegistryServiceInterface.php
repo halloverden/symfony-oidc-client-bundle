@@ -3,7 +3,15 @@
 
 namespace HalloVerden\Oidc\ClientBundle\Interfaces;
 
+use HalloVerden\Oidc\ClientBundle\Services\OpenIdProviderService;
 
+/**
+ * Interface OpenIdProviderRegistryServiceInterface
+ *
+ * @package HalloVerden\Oidc\ClientBundle\Interfaces
+ *
+ * @method OpenIdProviderServiceInterface|null getOpenIdProviderServiceByKey(string $key)
+ */
 interface OpenIdProviderRegistryServiceInterface {
 
   /**

@@ -16,7 +16,7 @@ class OpenIdProviderRegistryService implements OpenIdProviderRegistryServiceInte
   /**
    * @var OpenIdProviderServiceInterface[]
    */
-  private $openIdProviderServices;
+  private array $openIdProviderServices;
 
   /**
    * ClientConfigurationRegistryService constructor.
@@ -45,6 +45,15 @@ class OpenIdProviderRegistryService implements OpenIdProviderRegistryServiceInte
     }
 
     return null;
+  }
+
+  /**
+   * @param string $key
+   *
+   * @return OpenIdProviderServiceInterface|null
+   */
+  public function getOpenIdProviderServiceByKey(string $key): ?OpenIdProviderServiceInterface {
+    return $this->openIdProviderServices[$key] ?? null;
   }
 
 }
