@@ -32,11 +32,11 @@ class Configuration implements ConfigurationInterface {
             ->end()
           ->end()
         ->end()
-        ->scalarNode('default_client_configuration')->isRequired()->end()
+        ->scalarNode('default_client_configuration')->end()
       ->end()
       ->validate()
         ->ifTrue(function ($v) {
-          return !array_key_exists($v['default_client_configuration'], $v['client_configurations']);
+          return isset($v['default_client_configuration']) && !array_key_exists($v['default_client_configuration'], $v['client_configurations']);
         })
         ->thenInvalid('default_client_configuration does not match any client_configuration')
       ->end();
