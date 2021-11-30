@@ -168,6 +168,15 @@ class ProviderConfiguration {
   private $requestUriParameterSupported;
 
   /**
+   * @var array|null
+   *
+   * @Serializer\SerializedName("code_challenge_methods_supported")
+   * @Serializer\Type(name="array")
+   * @Serializer\Expose()
+   */
+  private ?array $codeChallengeMethodsSupported = null;
+
+  /**
    * @return string
    */
   public function getIssuer(): string {
@@ -285,4 +294,12 @@ class ProviderConfiguration {
   public function isRequestUriParameterSupported(): bool {
     return $this->requestUriParameterSupported;
   }
+
+  /**
+   * @return array|null
+   */
+  public function getCodeChallengeMethodsSupported(): ?array {
+    return $this->codeChallengeMethodsSupported;
+  }
+
 }
