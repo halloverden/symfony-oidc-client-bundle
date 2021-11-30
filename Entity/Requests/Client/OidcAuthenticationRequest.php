@@ -3,8 +3,10 @@
 
 namespace HalloVerden\Oidc\ClientBundle\Entity\Requests\Client;
 
+use HalloVerden\Contracts\Oidc\OidcAuthCodeInterface;
 use HalloVerden\Contracts\Oidc\Requests\OidcAuthenticationRequestInterface;
 use HalloVerden\Oidc\ClientBundle\Client\ClientConfiguration;
+use HalloVerden\Oidc\ClientBundle\Helpers\Base64Helper;
 use HalloVerden\Oidc\ClientBundle\Helpers\RandomHelper;
 use HalloVerden\Oidc\ClientBundle\Provider\ProviderConfiguration;
 
@@ -14,61 +16,18 @@ use HalloVerden\Oidc\ClientBundle\Provider\ProviderConfiguration;
  * @package HalloVerden\Oidc\ClientBundle\Entity\Requests\Client
  */
 class OidcAuthenticationRequest implements OidcAuthenticationRequestInterface {
-
-  /**
-   * @var string
-   */
-  private $scope;
-
-  /**
-   * @var string
-   */
-  private $clientId;
-
-  /**
-   * @var string
-   */
-  private $redirectUri;
-
-  /**
-   * @var string
-   */
-  private $responseType;
-
-  /**
-   * @var string
-   */
-  private $prompt;
-
-  /**
-   * @var string
-   */
-  private $nonce;
-
-  /**
-   * @var string
-   */
-  private $responseMode;
-
-  /**
-   * @var string
-   */
-  private $state;
-
-  /**
-   * @var string
-   */
-  private $codeChallengeMethod;
-
-  /**
-   * @var string
-   */
-  private $codeChallenge;
-
-  /**
-   * @var string
-   */
-  private $authorizeUrl;
+  private string $scope;
+  private string $clientId;
+  private string $redirectUri;
+  private string $responseType;
+  private ?string $prompt = null;
+  private ?string $nonce = null;
+  private ?string $responseMode = null;
+  private ?string $state = null;
+  private ?string $codeChallengeMethod = null;
+  private ?string $codeChallenge = null;
+  private ?string $codeVerifier = null;
+  private string $authorizeUrl;
 
   /**
    * @param ClientConfiguration   $clientConfiguration
@@ -87,6 +46,20 @@ class OidcAuthenticationRequest implements OidcAuthenticationRequestInterface {
       ->setState(RandomHelper::generateRandomString(10, true))
       ->setAuthorizeUrl($providerConfiguration->getAuthorizationEndpoint())
     ;
+
+    if ($clientConfiguration->isPkceEnabled() && null !== ($codeChallengeMethodsSupported = $providerConfiguration->getCodeChallengeMethodsSupported())) {
+      $verifier = RandomHelper::generateRandomString(128, true);
+
+      if (\in_array(OidcAuthCodeInterface::CHALLENGE_METHOD_S256, $codeChallengeMethodsSupported)) {
+        $request->setCodeChallenge(Base64Helper::base64url_encode(pack('H*', hash('sha256', $verifier))))
+          ->setCodeChallengeMethod(OidcAuthCodeInterface::CHALLENGE_METHOD_S256)
+          ->setCodeVerifier($verifier);
+      } elseif (\in_array(OidcAuthCodeInterface::CHALLENGE_METHOD_PLAIN, $codeChallengeMethodsSupported)) {
+        $request->setCodeChallenge($verifier)
+          ->setCodeChallengeMethod(OidcAuthCodeInterface::CHALLENGE_METHOD_PLAIN)
+          ->setCodeVerifier($verifier);
+      }
+    }
 
     return $request;
   }
@@ -225,7 +198,16 @@ class OidcAuthenticationRequest implements OidcAuthenticationRequestInterface {
   }
 
   /**
-   * @inheritDoc
+   * @return string|null
+   */
+  public function getCodeVerifier(): ?string {
+    return $this->codeVerifier;
+  }
+
+  /**
+   * @param string|null $response_mode
+   *
+   * @return static
    */
   public function setResponseMode(?string $response_mode): OidcAuthenticationRequestInterface {
     $this->responseMode = $response_mode;
@@ -243,6 +225,10 @@ class OidcAuthenticationRequest implements OidcAuthenticationRequestInterface {
         'response_type' => $this->getResponseTypeParam(),
         'nonce' => $this->getNonceParam(),
         'state' => $this->getStateParam(),
+        'prompt' => $this->getPromptParam(),
+        'response_mode' => $this->getResponseModeParam(),
+        'code_challenge' => $this->getCodeChallengeParam(),
+        'code_challenge_method' => $this->getCodeChallengeMethodParam(),
       ]);
   }
 
@@ -343,6 +329,16 @@ class OidcAuthenticationRequest implements OidcAuthenticationRequestInterface {
    */
   public function setAuthorizeUrl(string $authorizeUrl): self {
     $this->authorizeUrl = $authorizeUrl;
+    return $this;
+  }
+
+  /**
+   * @param string|null $codeVerifier
+   *
+   * @return self
+   */
+  public function setCodeVerifier(?string $codeVerifier): self {
+    $this->codeVerifier = $codeVerifier;
     return $this;
   }
 
