@@ -29,6 +29,7 @@ class Configuration implements ConfigurationInterface {
               ->scalarNode('response_type')->defaultValue('code')->end()
               ->scalarNode('response_mode')->defaultNull()->end()
               ->scalarNode('scope')->defaultValue('openid')->end()
+              ->booleanNode('pkce_enabled')->defaultFalse()->end()
             ->end()
           ->end()
         ->end()
