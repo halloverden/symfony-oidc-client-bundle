@@ -60,6 +60,7 @@ class HalloVerdenOidcClientExtension extends Extension {
         ['setOpenIdConfigurationEndpoint', [$clientConfigurationArray['openid_configuration_endpoint']]],
         ['setResponseType', [$clientConfigurationArray['response_type']]],
         ['setResponseMode', [$clientConfigurationArray['response_mode']]],
+        ['setAcrValues', [$clientConfigurationArray['acr_values']]],
         ['setScope', [$clientConfigurationArray['scope']]],
         ['setPkceEnabled', [$clientConfigurationArray['pkce_enabled']]]
       ],
