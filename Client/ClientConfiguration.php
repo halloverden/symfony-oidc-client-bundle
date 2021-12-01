@@ -12,6 +12,7 @@ class ClientConfiguration {
   private ?string $openIdConfigurationEndpoint = null;
   private ?string $responseType = null;
   private ?string $responseMode = null;
+  private ?string $acrValues = null;
   private string $scope;
   private bool $pkceEnabled = false;
 
@@ -149,6 +150,23 @@ class ClientConfiguration {
    */
   public function setResponseMode(?string $responseMode): self {
     $this->responseMode = $responseMode;
+    return $this;
+  }
+
+  /**
+   * @return string|null
+   */
+  public function getAcrValues(): ?string {
+    return $this->acrValues;
+  }
+
+  /**
+   * @param string|null $acrValues
+   *
+   * @return self
+   */
+  public function setAcrValues(?string $acrValues): self {
+    $this->acrValues = $acrValues;
     return $this;
   }
 
