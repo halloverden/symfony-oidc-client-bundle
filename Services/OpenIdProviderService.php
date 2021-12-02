@@ -173,4 +173,12 @@ class OpenIdProviderService implements OpenIdProviderServiceInterface {
 
     return new OidcEndSessionResponse($uri->toString());
   }
+
+  /**
+   * @return OidcTokenResponseFactory
+   */
+  public function getOidcTokenResponseFactory(): OidcTokenResponseFactory {
+    return $this->oidcTokenResponseFactory;
+  }
+
 }
