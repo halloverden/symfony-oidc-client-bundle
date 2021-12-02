@@ -39,10 +39,8 @@ class OidcTokenResponseFactory {
     OidcTokenInterface::TYPE_ACCESS_CLIENT_CREDENTIALS,
   ];
 
-  /**
-   * @var OpenIdProviderServiceInterface
-   */
-  private $openIdProviderService;
+  private OpenIdProviderServiceInterface $openIdProviderService;
+  private array $mandatoryClaims = self::MANDATORY_CLAIMS;
 
   /**
    * OidcTokenResponseFactory constructor.
@@ -73,6 +71,16 @@ class OidcTokenResponseFactory {
     }
 
     return $oidcTokenResponse;
+  }
+
+  /**
+   * @param string[] $mandatoryClaims
+   *
+   * @return self
+   */
+  public function setMandatoryClaims(array $mandatoryClaims): self {
+    $this->mandatoryClaims = $mandatoryClaims;
+    return $this;
   }
 
   /**
@@ -149,7 +157,7 @@ class OidcTokenResponseFactory {
       ->aud($this->openIdProviderService->getClientConfiguration()->getClientId())
       ->iss($this->openIdProviderService->getClientConfiguration()->getIssuer())
       ->keyset($this->openIdProviderService->getPublicKey())
-      ->mandatory(self::MANDATORY_CLAIMS)
+      ->mandatory($this->mandatoryClaims)
       ->claim('type', new TokenTypeChecker($validTypes))
       ->run();
   }
