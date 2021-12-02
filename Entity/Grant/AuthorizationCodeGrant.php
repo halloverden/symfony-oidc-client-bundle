@@ -8,18 +8,18 @@ use HalloVerden\Oidc\ClientBundle\Interfaces\Grant\OidcGrantInterface;
 class AuthorizationCodeGrant implements OidcGrantInterface {
   const TYPE_NAME = 'authorization_code';
 
-  /**
-   * @var string
-   */
-  private $code;
+  private string $code;
+  private ?string $codeVerifier;
 
   /**
    * AuthorizationCodeGrant constructor.
    *
-   * @param string $code
+   * @param string      $code
+   * @param string|null $codeVerifier
    */
-  public function __construct(string $code) {
+  public function __construct(string $code, ?string $codeVerifier = null) {
     $this->code = $code;
+    $this->codeVerifier = $codeVerifier;
   }
 
   /**
@@ -40,12 +40,35 @@ class AuthorizationCodeGrant implements OidcGrantInterface {
   }
 
   /**
+   * @return string|null
+   */
+  public function getCodeVerifier(): ?string {
+    return $this->codeVerifier;
+  }
+
+  /**
+   * @param string|null $codeVerifier
+   *
+   * @return self
+   */
+  public function setCodeVerifier(?string $codeVerifier): self {
+    $this->codeVerifier = $codeVerifier;
+    return $this;
+  }
+
+  /**
    * @return string[]
    */
   public function getRequestData(): array {
-    return [
+    $data = [
       'code' => $this->getCode()
     ];
+
+    if (null === $this->getCodeVerifier()) {
+      $data['code_verifier'] = $this->getCodeVerifier();
+    }
+
+    return $data;
   }
 
   /**
