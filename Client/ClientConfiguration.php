@@ -215,9 +215,12 @@ class ClientConfiguration {
 
   /**
    * @param int $stateParameterLength
+   *
+   * @return ClientConfiguration
    */
-  public function setStateParameterLength(int $stateParameterLength): void {
+  public function setStateParameterLength(int $stateParameterLength): self {
     $this->stateParameterLength = $stateParameterLength;
+    return $this;
   }
 
   /**
@@ -229,9 +232,12 @@ class ClientConfiguration {
 
   /**
    * @param int $nonceParameterLength
+   *
+   * @return ClientConfiguration
    */
-  public function setNonceParameterLength(int $nonceParameterLength): void {
+  public function setNonceParameterLength(int $nonceParameterLength): self {
     $this->nonceParameterLength = $nonceParameterLength;
+    return $this;
   }
 
 }
