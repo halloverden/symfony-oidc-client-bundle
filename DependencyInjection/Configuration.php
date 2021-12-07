@@ -31,6 +31,8 @@ class Configuration implements ConfigurationInterface {
               ->scalarNode('acr_values')->defaultNull()->end()
               ->scalarNode('scope')->defaultValue('openid')->end()
               ->booleanNode('pkce_enabled')->defaultFalse()->end()
+              ->integerNode('state_parameter_length')->defaultValue(10)->end()
+              ->integerNode('nonce_parameter_length')->defaultValue(10)->end()
             ->end()
           ->end()
         ->end()
