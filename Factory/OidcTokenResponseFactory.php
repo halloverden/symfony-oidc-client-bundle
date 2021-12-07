@@ -9,6 +9,7 @@ use HalloVerden\Contracts\Oidc\Tokens\OidcIdTokenInterface;
 use HalloVerden\Contracts\Oidc\Tokens\OidcRefreshTokenInterface;
 use HalloVerden\Contracts\Oidc\Tokens\OidcTokenInterface;
 use HalloVerden\Oidc\ClientBundle\Entity\Grant\AuthorizationCodeGrant;
+use HalloVerden\Oidc\ClientBundle\Exception\ProviderException;
 use HalloVerden\Oidc\ClientBundle\Helpers\OpenIdHashHelper;
 use HalloVerden\Oidc\ClientBundle\Entity\Responses\OidcTokenResponse;
 use HalloVerden\Oidc\ClientBundle\Exception\InvalidAccessTokenException;
@@ -39,10 +40,8 @@ class OidcTokenResponseFactory {
     OidcTokenInterface::TYPE_ACCESS_CLIENT_CREDENTIALS,
   ];
 
-  /**
-   * @var OpenIdProviderServiceInterface
-   */
-  private $openIdProviderService;
+  private OpenIdProviderServiceInterface $openIdProviderService;
+  private array $mandatoryClaims = self::MANDATORY_CLAIMS;
 
   /**
    * OidcTokenResponseFactory constructor.
@@ -76,6 +75,16 @@ class OidcTokenResponseFactory {
   }
 
   /**
+   * @param string[] $mandatoryClaims
+   *
+   * @return self
+   */
+  public function setMandatoryClaims(array $mandatoryClaims): self {
+    $this->mandatoryClaims = $mandatoryClaims;
+    return $this;
+  }
+
+  /**
    * @param string $jwtTokenString
    *
    * @return OidcAccessTokenInterface
@@ -101,7 +110,7 @@ class OidcTokenResponseFactory {
    */
   private function createIdToken(string $jwtTokenString, string $jwtAccessTokenString, OidcGrantInterface $grant): OidcIdTokenInterface {
     try {
-      $jwt = $this->createJWT($jwtTokenString, [OidcTokenInterface::TYPE_ID]);
+      $jwt = $this->createJWT($jwtTokenString, [OidcTokenInterface::TYPE_ID], true);
     } catch (\Exception $e) {
       throw new InvalidIdTokenException($e->getMessage());
     }
@@ -138,20 +147,25 @@ class OidcTokenResponseFactory {
   /**
    * @param string $jwtString
    * @param array  $validTypes
+   * @param bool   $audIsClientId
    *
    * @return JWT
-   * @throws \Exception
+   * @throws ProviderException
    */
-  private function createJWT(string $jwtString, array $validTypes): JWT {
-    return Load::jws($jwtString)
+  private function createJWT(string $jwtString, array $validTypes, bool $audIsClientId = false): JWT {
+    $validator = Load::jws($jwtString)
       ->exp(100)
       ->iat(100)
-      ->aud($this->openIdProviderService->getClientConfiguration()->getClientId())
       ->iss($this->openIdProviderService->getClientConfiguration()->getIssuer())
       ->keyset($this->openIdProviderService->getPublicKey())
-      ->mandatory(self::MANDATORY_CLAIMS)
-      ->claim('type', new TokenTypeChecker($validTypes))
-      ->run();
+      ->mandatory($this->mandatoryClaims)
+      ->claim('type', new TokenTypeChecker($validTypes));
+
+    if ($audIsClientId) {
+      $validator->aud($this->openIdProviderService->getClientConfiguration()->getClientId());
+    }
+
+    return $validator->run();
   }
 
 }

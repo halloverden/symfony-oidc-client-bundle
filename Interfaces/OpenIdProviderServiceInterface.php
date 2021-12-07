@@ -9,6 +9,7 @@ use HalloVerden\Contracts\Oidc\Requests\OidcAuthenticationRequestInterface;
 use HalloVerden\Oidc\ClientBundle\Client\ClientConfiguration;
 use HalloVerden\Oidc\ClientBundle\Exception\InvalidTokenException;
 use HalloVerden\Oidc\ClientBundle\Exception\ProviderException;
+use HalloVerden\Oidc\ClientBundle\Factory\OidcTokenResponseFactory;
 use HalloVerden\Oidc\ClientBundle\Interfaces\Grant\OidcGrantInterface;
 use HalloVerden\Oidc\ClientBundle\Provider\ProviderConfiguration;
 use Jose\Component\Core\JWKSet;
@@ -17,6 +18,8 @@ use Jose\Component\Core\JWKSet;
  * Interface OpenIdProviderServiceInterface
  *
  * @package HalloVerden\Oidc\ClientBundle\Interfaces
+ *
+ * @method OidcTokenResponseFactory getOidcTokenResponseFactory():
  */
 interface OpenIdProviderServiceInterface {
 
