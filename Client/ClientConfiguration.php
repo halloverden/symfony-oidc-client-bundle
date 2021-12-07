@@ -15,6 +15,8 @@ class ClientConfiguration {
   private ?string $acrValues = null;
   private string $scope;
   private bool $pkceEnabled = false;
+  private int $stateParameterLength = 10;
+  private int $nonceParameterLength = 10;
 
   /**
    * ClientConfiguration constructor.
@@ -202,6 +204,34 @@ class ClientConfiguration {
   public function setPkceEnabled(bool $pkceEnabled): self {
     $this->pkceEnabled = $pkceEnabled;
     return $this;
+  }
+
+  /**
+   * @return int
+   */
+  public function getStateParameterLength(): int {
+    return $this->stateParameterLength;
+  }
+
+  /**
+   * @param int $stateParameterLength
+   */
+  public function setStateParameterLength(int $stateParameterLength): void {
+    $this->stateParameterLength = $stateParameterLength;
+  }
+
+  /**
+   * @return int
+   */
+  public function getNonceParameterLength(): int {
+    return $this->nonceParameterLength;
+  }
+
+  /**
+   * @param int $nonceParameterLength
+   */
+  public function setNonceParameterLength(int $nonceParameterLength): void {
+    $this->nonceParameterLength = $nonceParameterLength;
   }
 
 }
