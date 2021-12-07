@@ -32,7 +32,7 @@ class HalloVerdenOidcClientExtension extends Extension {
       $clientConfiguration = $this->registerClientConfiguration($clientConfigurationArray, $key, $config, $container);
       $openIdProviderService = $this->registerOpenIdProviderService($clientConfiguration, $key, $config, $container);
 
-      if ($key === $config['default_client_configuration']) {
+      if ($key === ($config['default_client_configuration'] ?? null)) {
         $this->createOauthAuthenticatorService($openIdProviderService, $container);
       }
     }
@@ -82,7 +82,7 @@ class HalloVerdenOidcClientExtension extends Extension {
     $clientConfigurationId = 'hv.oidc.client_configuration.' . $key;
     $container->setDefinition($clientConfigurationId, $clientConfiguration);
 
-    if ($key === $config['default_client_configuration']) {
+    if ($key === ($config['default_client_configuration'] ?? null)) {
       $clientConfigurationDefaultServiceId = 'hv.oidc.client_configuration.default';
       $container->setAlias($clientConfigurationDefaultServiceId, $clientConfigurationId);
       $container->setAlias(ClientConfiguration::class, $clientConfigurationDefaultServiceId);
@@ -111,7 +111,7 @@ class HalloVerdenOidcClientExtension extends Extension {
 
     $container->registerAliasForArgument($openIdProviderServiceId, OpenIdProviderServiceInterface::class, $key .  '.open_id_provider_service');
 
-    if ($key === $config['default_client_configuration']) {
+    if ($key === ($config['default_client_configuration'] ?? null)) {
       $defaultOpenIdProviderServiceId = 'hv.oidc.openid_provider.default';
       $container->setAlias($defaultOpenIdProviderServiceId, $openIdProviderServiceId);
       $container->setAlias(OpenIdProviderServiceInterface::class, $defaultOpenIdProviderServiceId);
