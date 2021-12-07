@@ -5,46 +5,15 @@ namespace HalloVerden\Oidc\ClientBundle\Client;
 
 
 class ClientConfiguration {
-
-  /**
-   * @var string
-   */
-  private $issuer;
-
-  /**
-   * @var string
-   */
-  private $clientId;
-
-  /**
-   * @var string|null
-   */
-  private $secret;
-
-  /**
-   * @var string|null
-   */
-  private $redirectUri;
-
-  /**
-   * @var string|null
-   */
-  private $openIdConfigurationEndpoint;
-
-  /**
-   * @var string|null
-   */
-  private $responseType;
-
-  /**
-   * @var string|null
-   */
-  private $responseMode;
-
-  /**
-   * @var string
-   */
-  private $scope;
+  private string $issuer;
+  private string $clientId;
+  private ?string $secret = null;
+  private ?string $redirectUri = null;
+  private ?string $openIdConfigurationEndpoint = null;
+  private ?string $responseType = null;
+  private ?string $responseMode = null;
+  private string $scope;
+  private bool $pkceEnabled = false;
 
   /**
    * ClientConfiguration constructor.
@@ -197,6 +166,23 @@ class ClientConfiguration {
    */
   public function setScope(string $scope): self {
     $this->scope = $scope;
+    return $this;
+  }
+
+  /**
+   * @return bool
+   */
+  public function isPkceEnabled(): bool {
+    return $this->pkceEnabled;
+  }
+
+  /**
+   * @param bool $pkceEnabled
+   *
+   * @return self
+   */
+  public function setPkceEnabled(bool $pkceEnabled): self {
+    $this->pkceEnabled = $pkceEnabled;
     return $this;
   }
 
