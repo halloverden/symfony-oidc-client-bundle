@@ -118,11 +118,11 @@ class OidcTokenResponseFactory {
     $idToken = IdToken::createFromJwt($jwt, $jwtTokenString);
     $alg = $jwt->header->get('alg');
 
-    if (!OpenIdHashHelper::compare($jwtAccessTokenString, $idToken->getAtHash(), $alg)) {
+    if ($idToken->getAtHash() && !OpenIdHashHelper::compare($jwtAccessTokenString, $idToken->getAtHash(), $alg)) {
       throw new InvalidIdTokenException('at_hash did not match');
     }
 
-    if ($grant instanceof AuthorizationCodeGrant && !OpenIdHashHelper::compare($grant->getCode(), $idToken->getCHash(), $alg)) {
+    if ($grant instanceof AuthorizationCodeGrant && $idToken->getCHash() && !OpenIdHashHelper::compare($grant->getCode(), $idToken->getCHash(), $alg)) {
       throw new InvalidIdTokenException('c_hash did not match');
     }
 
