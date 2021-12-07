@@ -27,6 +27,7 @@ class OidcAuthenticationRequest implements OidcAuthenticationRequestInterface {
   private ?string $codeChallengeMethod = null;
   private ?string $codeChallenge = null;
   private ?string $codeVerifier = null;
+  private ?string $acrValues = null;
   private string $authorizeUrl;
 
   /**
@@ -45,6 +46,7 @@ class OidcAuthenticationRequest implements OidcAuthenticationRequestInterface {
       ->setResponseMode($clientConfiguration->getResponseMode())
       ->setState(RandomHelper::generateRandomString(10, true))
       ->setAuthorizeUrl($providerConfiguration->getAuthorizationEndpoint())
+      ->setAcrValues($clientConfiguration->getAcrValues())
     ;
 
     if ($clientConfiguration->isPkceEnabled() && null !== ($codeChallengeMethodsSupported = $providerConfiguration->getCodeChallengeMethodsSupported())) {
@@ -229,6 +231,7 @@ class OidcAuthenticationRequest implements OidcAuthenticationRequestInterface {
         'response_mode' => $this->getResponseModeParam(),
         'code_challenge' => $this->getCodeChallengeParam(),
         'code_challenge_method' => $this->getCodeChallengeMethodParam(),
+        'acr_values' => $this->getAcrValues(),
       ]);
   }
 
@@ -339,6 +342,23 @@ class OidcAuthenticationRequest implements OidcAuthenticationRequestInterface {
    */
   public function setCodeVerifier(?string $codeVerifier): self {
     $this->codeVerifier = $codeVerifier;
+    return $this;
+  }
+
+  /**
+   * @return string|null
+   */
+  public function getAcrValues(): ?string {
+    return $this->acrValues;
+  }
+
+  /**
+   * @param string|null $acrValues
+   *
+   * @return self
+   */
+  public function setAcrValues(?string $acrValues): self {
+    $this->acrValues = $acrValues;
     return $this;
   }
 

@@ -28,6 +28,7 @@ class Configuration implements ConfigurationInterface {
               ->scalarNode('openid_configuration_endpoint')->defaultNull()->end()
               ->scalarNode('response_type')->defaultValue('code')->end()
               ->scalarNode('response_mode')->defaultNull()->end()
+              ->scalarNode('acr_values')->defaultNull()->end()
               ->scalarNode('scope')->defaultValue('openid')->end()
               ->booleanNode('pkce_enabled')->defaultFalse()->end()
             ->end()

@@ -64,7 +64,7 @@ class AuthorizationCodeGrant implements OidcGrantInterface {
       'code' => $this->getCode()
     ];
 
-    if (null === $this->getCodeVerifier()) {
+    if (null !== $this->getCodeVerifier()) {
       $data['code_verifier'] = $this->getCodeVerifier();
     }
 
