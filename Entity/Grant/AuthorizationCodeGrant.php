@@ -10,16 +10,19 @@ class AuthorizationCodeGrant implements OidcGrantInterface {
 
   private string $code;
   private ?string $codeVerifier;
+  private ?string $state;
 
   /**
    * AuthorizationCodeGrant constructor.
    *
    * @param string      $code
    * @param string|null $codeVerifier
+   * @param string|null $state
    */
-  public function __construct(string $code, ?string $codeVerifier = null) {
+  public function __construct(string $code, ?string $codeVerifier = null, ?string $state = null) {
     $this->code = $code;
     $this->codeVerifier = $codeVerifier;
+    $this->state = $state;
   }
 
   /**
@@ -53,6 +56,23 @@ class AuthorizationCodeGrant implements OidcGrantInterface {
    */
   public function setCodeVerifier(?string $codeVerifier): self {
     $this->codeVerifier = $codeVerifier;
+    return $this;
+  }
+
+  /**
+   * @return string|null
+   */
+  public function getState(): ?string {
+    return $this->state;
+  }
+
+  /**
+   * @param string|null $state
+   *
+   * @return AuthorizationCodeGrant
+   */
+  public function setState(?string $state): self {
+    $this->state = $state;
     return $this;
   }
 

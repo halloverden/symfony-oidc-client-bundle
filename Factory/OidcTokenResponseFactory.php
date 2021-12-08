@@ -126,6 +126,11 @@ class OidcTokenResponseFactory {
       throw new InvalidIdTokenException('c_hash did not match');
     }
 
+    $sHash = $idToken->getPayload()['s_hash'] ?? null;
+    if ($sHash && $grant instanceof AuthorizationCodeGrant && $grant->getState() && !OpenIdHashHelper::compare($grant->getState(), $sHash, $alg)) {
+      throw new InvalidIdTokenException('s_hash did not match');
+    }
+
     return $idToken;
   }
 
