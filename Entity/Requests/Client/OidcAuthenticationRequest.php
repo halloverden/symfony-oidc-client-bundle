@@ -42,9 +42,9 @@ class OidcAuthenticationRequest implements OidcAuthenticationRequestInterface {
       ->setClientId($clientConfiguration->getClientId())
       ->setRedirectUri($clientConfiguration->getRedirectUri())
       ->setResponseType($clientConfiguration->getResponseType())
-      ->setNonce(RandomHelper::generateRandomString(10, true))
+      ->setNonce(RandomHelper::generateRandomString($clientConfiguration->getNonceParameterLength(), true))
       ->setResponseMode($clientConfiguration->getResponseMode())
-      ->setState(RandomHelper::generateRandomString(10, true))
+      ->setState(RandomHelper::generateRandomString($clientConfiguration->getStateParameterLength(), true))
       ->setAuthorizeUrl($providerConfiguration->getAuthorizationEndpoint())
       ->setAcrValues($clientConfiguration->getAcrValues())
     ;

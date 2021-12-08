@@ -62,7 +62,9 @@ class HalloVerdenOidcClientExtension extends Extension {
         ['setResponseMode', [$clientConfigurationArray['response_mode']]],
         ['setAcrValues', [$clientConfigurationArray['acr_values']]],
         ['setScope', [$clientConfigurationArray['scope']]],
-        ['setPkceEnabled', [$clientConfigurationArray['pkce_enabled']]]
+        ['setPkceEnabled', [$clientConfigurationArray['pkce_enabled']]],
+        ['setStateParameterLength', [$clientConfigurationArray['state_parameter_length']]],
+        ['setNonceParameterLength', [$clientConfigurationArray['nonce_parameter_length']]],
       ],
     );
 
