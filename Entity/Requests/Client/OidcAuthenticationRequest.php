@@ -28,6 +28,7 @@ class OidcAuthenticationRequest implements OidcAuthenticationRequestInterface {
   private ?string $codeChallenge = null;
   private ?string $codeVerifier = null;
   private ?string $acrValues = null;
+  private ?string $uiLocales = null;
   private string $authorizeUrl;
 
   /**
@@ -47,6 +48,7 @@ class OidcAuthenticationRequest implements OidcAuthenticationRequestInterface {
       ->setState(RandomHelper::generateRandomString($clientConfiguration->getStateParameterLength(), true))
       ->setAuthorizeUrl($providerConfiguration->getAuthorizationEndpoint())
       ->setAcrValues($clientConfiguration->getAcrValues())
+      ->setUiLocales($clientConfiguration->getUiLocales())
     ;
 
     if ($clientConfiguration->isPkceEnabled() && null !== ($codeChallengeMethodsSupported = $providerConfiguration->getCodeChallengeMethodsSupported())) {
@@ -140,7 +142,7 @@ class OidcAuthenticationRequest implements OidcAuthenticationRequestInterface {
    * @inheritDoc
    */
   public function getUiLocalesParam(): ?string {
-    return null;
+    return $this->uiLocales;
   }
 
   /**
@@ -232,6 +234,7 @@ class OidcAuthenticationRequest implements OidcAuthenticationRequestInterface {
         'code_challenge' => $this->getCodeChallengeParam(),
         'code_challenge_method' => $this->getCodeChallengeMethodParam(),
         'acr_values' => $this->getAcrValues(),
+        'ui_locales' => $this->getUiLocalesParam(),
       ]);
   }
 
@@ -359,6 +362,16 @@ class OidcAuthenticationRequest implements OidcAuthenticationRequestInterface {
    */
   public function setAcrValues(?string $acrValues): self {
     $this->acrValues = $acrValues;
+    return $this;
+  }
+
+  /**
+   * @param string|null $uiLocales
+   *
+   * @return OidcAuthenticationRequest
+   */
+  public function setUiLocales(?string $uiLocales): self {
+    $this->uiLocales = $uiLocales;
     return $this;
   }
 
