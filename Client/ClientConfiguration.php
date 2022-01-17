@@ -13,6 +13,7 @@ class ClientConfiguration {
   private ?string $responseType = null;
   private ?string $responseMode = null;
   private ?string $acrValues = null;
+  private ?string $uiLocales = null;
   private string $scope;
   private bool $pkceEnabled = false;
   private int $stateParameterLength = 10;
@@ -169,6 +170,23 @@ class ClientConfiguration {
    */
   public function setAcrValues(?string $acrValues): self {
     $this->acrValues = $acrValues;
+    return $this;
+  }
+
+  /**
+   * @return string|null
+   */
+  public function getUiLocales(): ?string {
+    return $this->uiLocales;
+  }
+
+  /**
+   * @param string|null $uiLocales
+   *
+   * @return ClientConfiguration
+   */
+  public function setUiLocales(?string $uiLocales): self {
+    $this->uiLocales = $uiLocales;
     return $this;
   }
 
