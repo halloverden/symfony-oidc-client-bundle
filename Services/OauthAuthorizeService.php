@@ -87,7 +87,7 @@ class OauthAuthorizeService implements OauthAuthorizeServiceInterface {
 
       $this->session->set(self::SESSION_STATE_KEY, new OauthAuthorizeSession(
         $oauthAuthorizeRequest->getStateParam(),
-        $authorizeRequest->getErrorUrl() ?: $this->authorizeSuccessUrl,
+        $authorizeRequest->getSuccessUrl() ?: $this->authorizeSuccessUrl,
         $authorizeRequest->getErrorUrl() ?: $this->authorizeErrorUrl,
         $oauthAuthorizeRequest->getNonceParam()
       ));
