@@ -21,7 +21,7 @@ class OauthAuthenticatorServiceFactory {
    *
    * @return OauthAuthenticatorService
    */
-  public function create(OpenIdProviderServiceInterface $openIdProviderService, OauthJwkSetProviderServiceInterface $oauthJwkSetProvider) {
+  public static function create(OpenIdProviderServiceInterface $openIdProviderService, OauthJwkSetProviderServiceInterface $oauthJwkSetProvider): OauthAuthenticatorService {
     return new OauthAuthenticatorService(
       $openIdProviderService->getClientConfiguration()->getIssuer(),
       $oauthJwkSetProvider
