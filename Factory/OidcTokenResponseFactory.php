@@ -9,22 +9,23 @@ use HalloVerden\Contracts\Oidc\Tokens\OidcIdTokenInterface;
 use HalloVerden\Contracts\Oidc\Tokens\OidcRefreshTokenInterface;
 use HalloVerden\Contracts\Oidc\Tokens\OidcTokenInterface;
 use HalloVerden\Oidc\ClientBundle\Entity\Grant\AuthorizationCodeGrant;
-use HalloVerden\Oidc\ClientBundle\Exception\ProviderException;
-use HalloVerden\Oidc\ClientBundle\Helpers\OpenIdHashHelper;
+use HalloVerden\Oidc\ClientBundle\Entity\Grant\ClientCredentialsGrant;
 use HalloVerden\Oidc\ClientBundle\Entity\Responses\OidcTokenResponse;
 use HalloVerden\Oidc\ClientBundle\Exception\InvalidAccessTokenException;
 use HalloVerden\Oidc\ClientBundle\Exception\InvalidIdTokenException;
 use HalloVerden\Oidc\ClientBundle\Exception\InvalidRefreshTokenException;
 use HalloVerden\Oidc\ClientBundle\Exception\InvalidTokenException;
+use HalloVerden\Oidc\ClientBundle\Exception\ProviderException;
+use HalloVerden\Oidc\ClientBundle\Helpers\OpenIdHashHelper;
 use HalloVerden\Oidc\ClientBundle\Interfaces\Grant\OidcGrantInterface;
 use HalloVerden\Oidc\ClientBundle\Interfaces\OidcTokenResponseInterface;
 use HalloVerden\Oidc\ClientBundle\Interfaces\OpenIdProviderServiceInterface;
 use HalloVerden\Oidc\ClientBundle\Token\AccessToken;
 use HalloVerden\Oidc\ClientBundle\Token\IdToken;
 use HalloVerden\Oidc\ClientBundle\Token\RefreshToken;
-use HalloVerden\Security\ClaimCheckers\TokenTypeChecker;
-use Jose\Easy\JWT;
-use Jose\Easy\Load;
+use Jose\Component\Checker\ClaimCheckerManager;
+use Jose\Component\Core\Util\JsonConverter;
+use Jose\Component\Signature\JWSLoader;
 
 class OidcTokenResponseFactory {
 
@@ -35,21 +36,30 @@ class OidcTokenResponseFactory {
     'type',
   ];
 
-  const VALID_ACCESS_TOKEN_TYPES = [
-    OidcTokenInterface::TYPE_ACCESS,
-    OidcTokenInterface::TYPE_ACCESS_CLIENT_CREDENTIALS,
-  ];
-
   private OpenIdProviderServiceInterface $openIdProviderService;
   private array $mandatoryClaims = self::MANDATORY_CLAIMS;
 
   /**
+   * @var array<string, JWSLoader>
+   */
+  private array $jwsLoaders;
+
+  /**
+   * @var array<string, ClaimCheckerManager>
+   */
+  private array $claimCheckers;
+
+  /**
    * OidcTokenResponseFactory constructor.
    *
-   * @param OpenIdProviderServiceInterface $openIdProviderService
+   * @param OpenIdProviderServiceInterface     $openIdProviderService
+   * @param array<string, JWSLoader>           $jwsLoaders
+   * @param array<string, ClaimCheckerManager> $claimCheckers
    */
-  public function __construct(OpenIdProviderServiceInterface $openIdProviderService) {
+  public function __construct(OpenIdProviderServiceInterface $openIdProviderService, array $jwsLoaders, array $claimCheckers) {
     $this->openIdProviderService = $openIdProviderService;
+    $this->jwsLoaders = $jwsLoaders;
+    $this->claimCheckers = $claimCheckers;
   }
 
   /**
@@ -61,7 +71,7 @@ class OidcTokenResponseFactory {
    * @throws InvalidTokenException
    */
   public function createOidcTokenResponse(array $responseData, OidcGrantInterface $grant): OidcTokenResponseInterface {
-    $oidcTokenResponse = new OidcTokenResponse($this->createAccessToken($responseData['access_token']), $responseData['token_type'], $responseData);
+    $oidcTokenResponse = new OidcTokenResponse($this->createAccessToken($responseData['access_token'], $grant), $responseData['token_type'], $responseData);
 
     if (isset($responseData['id_token'])) {
       $oidcTokenResponse->setIdToken($this->createIdToken($responseData['id_token'], $responseData['access_token'], $grant));
@@ -85,14 +95,15 @@ class OidcTokenResponseFactory {
   }
 
   /**
-   * @param string $jwtTokenString
+   * @param string             $jwtTokenString
+   * @param OidcGrantInterface $grant
    *
    * @return OidcAccessTokenInterface
-   * @throws InvalidTokenException
+   * @throws InvalidAccessTokenException
    */
-  private function createAccessToken(string $jwtTokenString): OidcAccessTokenInterface {
+  private function createAccessToken(string $jwtTokenString, OidcGrantInterface $grant): OidcAccessTokenInterface {
     try {
-      $jwt = $this->createJWT($jwtTokenString, self::VALID_ACCESS_TOKEN_TYPES);
+      $jwt = $this->createJWT($jwtTokenString, $grant instanceof ClientCredentialsGrant ? OidcTokenInterface::TYPE_ACCESS_CLIENT_CREDENTIALS : OidcTokenInterface::TYPE_ACCESS);
     } catch (\Exception $e) {
       throw new InvalidAccessTokenException($e->getMessage());
     }
@@ -110,13 +121,13 @@ class OidcTokenResponseFactory {
    */
   private function createIdToken(string $jwtTokenString, string $jwtAccessTokenString, OidcGrantInterface $grant): OidcIdTokenInterface {
     try {
-      $jwt = $this->createJWT($jwtTokenString, [OidcTokenInterface::TYPE_ID], true);
+      $jwt = $this->createJWT($jwtTokenString, OidcTokenInterface::TYPE_ID, $headers, true);
     } catch (\Exception $e) {
       throw new InvalidIdTokenException($e->getMessage());
     }
 
     $idToken = IdToken::createFromJwt($jwt, $jwtTokenString);
-    $alg = $jwt->header->get('alg');
+    $alg = $headers['alg'];
 
     if ($idToken->getAtHash() && !OpenIdHashHelper::compare($jwtAccessTokenString, $idToken->getAtHash(), $alg)) {
       throw new InvalidIdTokenException('at_hash did not match');
@@ -142,7 +153,7 @@ class OidcTokenResponseFactory {
    */
   private function createRefreshToken(string $jwtTokenString): OidcRefreshTokenInterface {
     try {
-      $jwt = $this->createJWT($jwtTokenString, [OidcTokenInterface::TYPE_REFRESH]);
+      $jwt = $this->createJWT($jwtTokenString, OidcTokenInterface::TYPE_REFRESH);
     } catch (\Exception $e) {
       throw new InvalidRefreshTokenException($e->getMessage());
     }
@@ -150,27 +161,42 @@ class OidcTokenResponseFactory {
   }
 
   /**
-   * @param string $jwtString
-   * @param array  $validTypes
-   * @param bool   $audIsClientId
+   * @param string     $jwtString
+   * @param string     $type
+   * @param array|null $headers
+   * @param bool       $audIsClientId
    *
-   * @return JWT
+   * @return array
    * @throws ProviderException
+   * @throws \JsonException
+   * @throws \Exception
    */
-  private function createJWT(string $jwtString, array $validTypes, bool $audIsClientId = false): JWT {
-    $validator = Load::jws($jwtString)
-      ->exp(100)
-      ->iat(100)
-      ->iss($this->openIdProviderService->getClientConfiguration()->getIssuer())
-      ->keyset($this->openIdProviderService->getPublicKey())
-      ->mandatory($this->mandatoryClaims)
-      ->claim('type', new TokenTypeChecker($validTypes));
+  private function createJWT(string $jwtString, string $type, ?array &$headers = null, bool $audIsClientId = false): array {
+    $jws = $this->getJwsLoader($type)->loadAndVerifyWithKeySet($jwtString, $this->openIdProviderService->getPublicKey(), $signature);
 
-    if ($audIsClientId) {
-      $validator->aud($this->openIdProviderService->getClientConfiguration()->getClientId());
-    }
+    $claims = JsonConverter::decode($jws->getPayload());
+    $this->getClaimChecker($type)->check($claims, $this->mandatoryClaims);
 
-    return $validator->run();
+    $headers = $jws->getSignature($signature)->getHeader();
+    return $claims;
+  }
+
+  /**
+   * @param string $type
+   *
+   * @return JWSLoader
+   */
+  private function getJwsLoader(string $type): JWSLoader {
+    return $this->jwsLoaders[$type];
+  }
+
+  /**
+   * @param string $type
+   *
+   * @return ClaimCheckerManager
+   */
+  private function getClaimChecker(string $type): ClaimCheckerManager {
+    return $this->claimCheckers[$type];
   }
 
 }
