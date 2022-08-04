@@ -31,7 +31,7 @@ class OpenIdProviderService implements OpenIdProviderServiceInterface {
   private HttpClientInterface $client;
   private SerializerInterface $serializer;
   private ?ProviderConfiguration $providerConfiguration;
-  private ?JWKSet $publicKey;
+  private ?JWKSet $publicKey = null;
   protected OidcTokenResponseFactory $oidcTokenResponseFactory;
 
   /**
