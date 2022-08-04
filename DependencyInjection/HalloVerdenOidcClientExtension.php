@@ -5,40 +5,74 @@ namespace HalloVerden\Oidc\ClientBundle\DependencyInjection;
 
 
 use HalloVerden\Oidc\ClientBundle\Client\ClientConfiguration;
-use HalloVerden\Oidc\ClientBundle\Factory\OauthAuthenticatorServiceFactory;
 use HalloVerden\Oidc\ClientBundle\Interfaces\OpenIdProviderServiceInterface;
 use HalloVerden\Oidc\ClientBundle\Services\OpenIdProviderService;
-use HalloVerden\Security\Interfaces\OauthAuthenticatorServiceInterface;
-use HalloVerden\Security\Interfaces\OauthJwkSetProviderServiceInterface;
-use HalloVerden\Security\Services\OauthAuthenticatorService;
+use Jose\Bundle\JoseFramework\Helper\ConfigurationHelper;
+use Jose\Component\Checker\AudienceChecker;
+use Jose\Component\Core\JWKSet;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
+use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 
-class HalloVerdenOidcClientExtension extends Extension {
+class HalloVerdenOidcClientExtension extends Extension implements PrependExtensionInterface {
 
   /**
    * @inheritDoc
+   * @throws \Exception
    */
   public function load(array $configs, ContainerBuilder $container) {
     $config = $this->processConfiguration(new Configuration(), $configs);
 
-    $defaultClientConfiguration = null;
-
     foreach ($config['client_configurations'] as $key => $clientConfigurationArray) {
       $clientConfiguration = $this->registerClientConfiguration($clientConfigurationArray, $key, $config, $container);
-      $openIdProviderService = $this->registerOpenIdProviderService($clientConfiguration, $key, $config, $container);
-
-      if ($key === ($config['default_client_configuration'] ?? null)) {
-        $this->createOauthAuthenticatorService($openIdProviderService, $container);
-      }
+      $this->registerOpenIdProviderService($clientConfiguration, $key, $config, $container);
+      $this->registerJwkSet($key, $container);
+      $this->registerAudienceChecker($key, $clientConfigurationArray, $container);
     }
 
     $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
     $loader->load('services.yaml');
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function prepend(ContainerBuilder $container) {
+    ConfigurationHelper::addJWSLoader(
+      $container,
+      'hv_oidc_client_default',
+      ['jws_compact'],
+      ['RS256'],
+      []
+    );
+
+    ConfigurationHelper::addClaimChecker(
+      $container,
+      'hv_oidc_client_default_accesstoken',
+      ['exp', 'iat', 'nbf', 'token_type.accesstoken']
+    );
+
+    ConfigurationHelper::addClaimChecker(
+      $container,
+      'hv_oidc_client_default_access_token_client_credentials',
+      ['exp', 'iat', 'nbf', 'token_type.access_token_client_credentials']
+    );
+
+    ConfigurationHelper::addClaimChecker(
+      $container,
+      'hv_oidc_client_default_idtoken',
+      ['exp', 'iat', 'nbf', 'token_type.idtoken', 'hv_oidc_client_aud_default']
+    );
+
+    ConfigurationHelper::addClaimChecker(
+      $container,
+      'hv_oidc_client_default_refreshtoken',
+      ['exp', 'iat', 'nbf', 'token_type.refreshtoken']
+    );
   }
 
   /**
@@ -102,13 +136,25 @@ class HalloVerdenOidcClientExtension extends Extension {
    * @param array            $config
    * @param ContainerBuilder $container
    *
-   * @return Definition
+   * @return void
    */
-  private function registerOpenIdProviderService(Definition $clientConfiguration, string $key, array $config, ContainerBuilder $container): Definition {
+  private function registerOpenIdProviderService(Definition $clientConfiguration, string $key, array $config, ContainerBuilder $container): void {
+    $jwsLoaders = [];
+    foreach ($config['client_configurations'][$key]['jws_loader'] as $tokenType => $loader) {
+      $jwsLoaders[$tokenType] = new Reference('jose.jws_loader.' . $loader);
+    }
+
+    $claimCheckers = [];
+    foreach ($config['client_configurations'][$key]['claim_checker'] as $tokenType => $clamChecker) {
+      $claimCheckers[$tokenType] = new Reference('jose.claim_checker.' . $clamChecker);
+    }
+
     $openIdProviderService = new Definition(OpenIdProviderService::class, [
       '$clientConfiguration' => $clientConfiguration,
       '$client' => new Reference('http_client'),
       '$serializer' => new Reference('jms_serializer'),
+      '$jwsLoaders' => $jwsLoaders,
+      '$claimCheckers' => $claimCheckers
     ]);
     $openIdProviderService->addTag('hv.oidc.openid_provider_service', ['key' => $key]);
     $openIdProviderServiceId = 'hv.oidc.openid_provider.' . $key;
@@ -121,26 +167,36 @@ class HalloVerdenOidcClientExtension extends Extension {
       $container->setAlias($defaultOpenIdProviderServiceId, $openIdProviderServiceId);
       $container->setAlias(OpenIdProviderServiceInterface::class, $defaultOpenIdProviderServiceId);
     }
-
-    return $openIdProviderService;
   }
 
   /**
-   * @param Definition       $openIdProviderService
+   * @param string           $key
    * @param ContainerBuilder $container
    *
-   * @return Definition
+   * @return void
    */
-  private function createOauthAuthenticatorService(Definition $openIdProviderService, ContainerBuilder $container): Definition {
-    $oauthAuthenticatorService = new Definition(OauthAuthenticatorService::class);
-    $oauthAuthenticatorService->setFactory([OauthAuthenticatorServiceFactory::class, 'create'])
-      ->setArguments([
-        '$openIdProviderService' => $openIdProviderService,
-        '$oauthJwkSetProvider' => new Reference(OauthJwkSetProviderServiceInterface::class)
-      ]);
-    $container->setDefinition(OauthAuthenticatorServiceInterface::class, $oauthAuthenticatorService);
+  private function registerJwkSet(string $key, ContainerBuilder $container): void {
+    $jwkSetService = new Definition(JWKSet::class);
+    $jwkSetService->setFactory([new Reference('hv.oidc.openid_provider.' . $key), 'getPublicKey']);
+    $jwkSetService->addTag('jose.jwkset');
 
-    return $oauthAuthenticatorService;
+    $container->setDefinition('jose.key_set.hv_oidc_client.' . $key, $jwkSetService);
+  }
+
+  /**
+   * @param string           $key
+   * @param array            $config
+   * @param ContainerBuilder $container
+   *
+   * @return void
+   */
+  private function registerAudienceChecker(string $key, array $config, ContainerBuilder $container): void {
+    $audienceChecker = new Definition(AudienceChecker::class, [
+      '$audience' => $config['client_id']
+    ]);
+    $audienceChecker->addTag('jose.checker.claim', ['alias' => 'hv_oidc_client_aud_default']);
+
+    $container->setDefinition('hv.oidc.claim_checker.aud.' . $key, $audienceChecker);
   }
 
 }
