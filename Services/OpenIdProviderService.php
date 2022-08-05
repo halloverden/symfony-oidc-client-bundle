@@ -27,36 +27,12 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class OpenIdProviderService implements OpenIdProviderServiceInterface {
-
-  /**
-   * @var ClientConfiguration
-   */
-  private $clientConfiguration;
-
-  /**
-   * @var HttpClientInterface
-   */
-  private $client;
-
-  /**
-   * @var SerializerInterface
-   */
-  private $serializer;
-
-  /**
-   * @var ProviderConfiguration|null
-   */
-  private $providerConfiguration;
-
-  /**
-   * @var JWKSet|null
-   */
-  private $publicKey;
-
-  /**
-   * @var OidcTokenResponseFactory
-   */
-  protected $oidcTokenResponseFactory;
+  private ClientConfiguration $clientConfiguration;
+  private HttpClientInterface $client;
+  private SerializerInterface $serializer;
+  private ?ProviderConfiguration $providerConfiguration = null;
+  private ?JWKSet $publicKey = null;
+  protected OidcTokenResponseFactory $oidcTokenResponseFactory;
 
   /**
    * OpenIdProviderService constructor.
@@ -64,12 +40,14 @@ class OpenIdProviderService implements OpenIdProviderServiceInterface {
    * @param ClientConfiguration $clientConfiguration
    * @param HttpClientInterface $client
    * @param SerializerInterface $serializer
+   * @param array               $jwsLoaders
+   * @param array               $claimCheckers
    */
-  public function __construct(ClientConfiguration $clientConfiguration, HttpClientInterface $client, SerializerInterface $serializer) {
+  public function __construct(ClientConfiguration $clientConfiguration, HttpClientInterface $client, SerializerInterface $serializer, array $jwsLoaders, array $claimCheckers) {
     $this->clientConfiguration = $clientConfiguration;
     $this->client = $client;
     $this->serializer = $serializer;
-    $this->oidcTokenResponseFactory = new OidcTokenResponseFactory($this);
+    $this->oidcTokenResponseFactory = new OidcTokenResponseFactory($this, $jwsLoaders, $claimCheckers);
   }
 
   /**

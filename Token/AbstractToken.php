@@ -6,7 +6,6 @@ namespace HalloVerden\Oidc\ClientBundle\Token;
 
 use HalloVerden\Contracts\Oidc\Tokens\OidcTokenInterface;
 use HalloVerden\Oidc\ClientBundle\Interfaces\OidcRawTokenInterface;
-use Jose\Easy\JWT;
 
 abstract class AbstractToken implements OidcTokenInterface, OidcRawTokenInterface {
 
@@ -46,15 +45,13 @@ abstract class AbstractToken implements OidcTokenInterface, OidcRawTokenInterfac
   protected $rawToken;
 
   /**
-   * @param JWT    $JWT
+   * @param array  $claims
    * @param string $rawToken
    *
    * @return static
    */
-  public static function createFromJwt(JWT $JWT, string $rawToken): self {
+  public static function createFromJwt(array $claims, string $rawToken): self {
     $token = new static();
-
-    $claims = $JWT->claims->all();
 
     foreach ($claims as $key => $value) {
       $property = self::toCamelCase($key);

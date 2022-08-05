@@ -4,10 +4,30 @@ services:
         arguments:
             $openIdProviderServices: !tagged_iterator { tag: 'hv.oidc.openid_provider_service', index_by: 'key' }
 
-    HalloVerden\Security\Interfaces\OauthTokenProviderServiceInterface:
-        class: HalloVerden\Oidc\ClientBundle\Services\OauthTokenProviderService
-
-    HalloVerden\Security\Interfaces\OauthJwkSetProviderServiceInterface:
-        class: HalloVerden\Oidc\ClientBundle\Services\OauthJwkSetProviderService
+    hv_oidc_client.token_type_checker.accesstoken:
+        class: HalloVerden\Oidc\ClientBundle\Jwt\ClaimChecker\TokenTypeChecker
         arguments:
-            $openIdProviderRegistryService: '@HalloVerden\Oidc\ClientBundle\Interfaces\OpenIdProviderRegistryServiceInterface'
+            - [ 'accesstoken' ]
+        tags:
+            - { name: 'jose.checker.claim', alias: 'token_type.accesstoken'}
+
+    hv_oidc_client.token_type_checker.access_token_client_credentials:
+        class: HalloVerden\Oidc\ClientBundle\Jwt\ClaimChecker\TokenTypeChecker
+        arguments:
+            - [ 'access_token_client_credentials' ]
+        tags:
+            - { name: 'jose.checker.claim', alias: 'token_type.access_token_client_credentials' }
+
+    hv_oidc_client.token_type_checker.idtoken:
+        class: HalloVerden\Oidc\ClientBundle\Jwt\ClaimChecker\TokenTypeChecker
+        arguments:
+            - [ 'idtoken' ]
+        tags:
+            - { name: 'jose.checker.claim', alias: 'token_type.idtoken' }
+
+    hv_oidc_client.token_type_checker.refreshtoken:
+        class: HalloVerden\Oidc\ClientBundle\Jwt\ClaimChecker\TokenTypeChecker
+        arguments:
+            - [ 'refreshtoken' ]
+        tags:
+            - { name: 'jose.checker.claim', alias: 'token_type.refreshtoken' }
