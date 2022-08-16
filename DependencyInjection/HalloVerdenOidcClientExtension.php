@@ -42,37 +42,15 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
    * @inheritDoc
    */
   public function prepend(ContainerBuilder $container) {
-    ConfigurationHelper::addJWSLoader(
-      $container,
-      'hv_oidc_client_default',
-      ['jws_compact'],
-      ['RS256'],
-      []
-    );
+    foreach ($container->findTaggedServiceIds('hv.oidc.client_configuration') as $tags) {
+      $key = $tags[0]['key'] ?? null;
+      if (null === $key) {
+        continue;
+      }
 
-    ConfigurationHelper::addClaimChecker(
-      $container,
-      'hv_oidc_client_default_accesstoken',
-      ['exp', 'iat', 'nbf', 'token_type.accesstoken']
-    );
-
-    ConfigurationHelper::addClaimChecker(
-      $container,
-      'hv_oidc_client_default_access_token_client_credentials',
-      ['exp', 'iat', 'nbf', 'token_type.access_token_client_credentials']
-    );
-
-    ConfigurationHelper::addClaimChecker(
-      $container,
-      'hv_oidc_client_default_idtoken',
-      ['exp', 'iat', 'nbf', 'token_type.idtoken', 'hv_oidc_client_aud_default']
-    );
-
-    ConfigurationHelper::addClaimChecker(
-      $container,
-      'hv_oidc_client_default_refreshtoken',
-      ['exp', 'iat', 'nbf', 'token_type.refreshtoken']
-    );
+      $this->addJwsLoaders($key, $container);
+      $this->addClaimCheckers($key, $container);
+    }
   }
 
   /**
@@ -141,12 +119,20 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
   private function registerOpenIdProviderService(Definition $clientConfiguration, string $key, array $config, ContainerBuilder $container): void {
     $jwsLoaders = [];
     foreach ($config['client_configurations'][$key]['jws_loader'] as $tokenType => $loader) {
+      if (null === $loader) {
+        $loader = 'hv_oidc_client_default_' . $tokenType . '.' . $key;
+      }
+
       $jwsLoaders[$tokenType] = new Reference('jose.jws_loader.' . $loader);
     }
 
     $claimCheckers = [];
-    foreach ($config['client_configurations'][$key]['claim_checker'] as $tokenType => $clamChecker) {
-      $claimCheckers[$tokenType] = new Reference('jose.claim_checker.' . $clamChecker);
+    foreach ($config['client_configurations'][$key]['claim_checker'] as $tokenType => $claimChecker) {
+      if (null === $claimChecker) {
+        $claimChecker = 'hv_oidc_client_default_' . $tokenType . '.' . $key;
+      }
+
+      $claimCheckers[$tokenType] = new Reference('jose.claim_checker.' . $claimChecker);
     }
 
     $openIdProviderService = new Definition(OpenIdProviderService::class, [
@@ -194,9 +180,57 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
     $audienceChecker = new Definition(AudienceChecker::class, [
       '$audience' => $config['client_id']
     ]);
-    $audienceChecker->addTag('jose.checker.claim', ['alias' => 'hv_oidc_client_aud_default']);
+    $audienceChecker->addTag('jose.checker.claim', ['alias' => 'hv_oidc_client_aud_default.' . $key]);
 
     $container->setDefinition('hv.oidc.claim_checker.aud.' . $key, $audienceChecker);
+  }
+
+  /**
+   * @param string           $key
+   * @param ContainerBuilder $container
+   *
+   * @return void
+   */
+  private function addJwsLoaders(string $key, ContainerBuilder $container): void {
+    ConfigurationHelper::addJWSLoader(
+      $container,
+      'hv_oidc_client_default.' . $key,
+      ['jws_compact'],
+      ['RS256'],
+      []
+    );
+  }
+
+  /**
+   * @param string           $key
+   * @param ContainerBuilder $container
+   *
+   * @return void
+   */
+  private function addClaimCheckers(string $key, ContainerBuilder $container): void {
+    ConfigurationHelper::addClaimChecker(
+      $container,
+      'hv_oidc_client_default_accesstoken.' . $key,
+      ['exp', 'iat', 'nbf', 'token_type.accesstoken']
+    );
+
+    ConfigurationHelper::addClaimChecker(
+      $container,
+      'hv_oidc_client_default_access_token_client_credentials.' . $key,
+      ['exp', 'iat', 'nbf', 'token_type.access_token_client_credentials']
+    );
+
+    ConfigurationHelper::addClaimChecker(
+      $container,
+      'hv_oidc_client_default_idtoken.' . $key,
+      ['exp', 'iat', 'nbf', 'token_type.idtoken', 'hv_oidc_client_aud_default.' . $key]
+    );
+
+    ConfigurationHelper::addClaimChecker(
+      $container,
+      'hv_oidc_client_default_refreshtoken.' . $key,
+      ['exp', 'iat', 'nbf', 'token_type.refreshtoken']
+    );
   }
 
 }
