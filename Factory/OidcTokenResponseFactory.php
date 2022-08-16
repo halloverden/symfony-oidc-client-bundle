@@ -177,7 +177,7 @@ class OidcTokenResponseFactory {
     $claims = JsonConverter::decode($jws->getPayload());
     $this->getClaimChecker($type)->check($claims, $this->mandatoryClaims);
 
-    $headers = $jws->getSignature($signature)->getHeader();
+    $headers = $jws->getSignature($signature)->getProtectedHeader();
     return $claims;
   }
 
