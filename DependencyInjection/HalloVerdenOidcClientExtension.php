@@ -42,12 +42,10 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
    * @inheritDoc
    */
   public function prepend(ContainerBuilder $container) {
-    foreach ($container->findTaggedServiceIds('hv.oidc.client_configuration') as $tags) {
-      $key = $tags[0]['key'] ?? null;
-      if (null === $key) {
-        continue;
-      }
+    $configs = $container->getExtensionConfig('hallo_verden_oidc_client');
+    $config = $this->processConfiguration(new Configuration(), $configs);
 
+    foreach (\array_keys($config['client_configurations']) as $key) {
       $this->addJwsLoaders($key, $container);
       $this->addClaimCheckers($key, $container);
     }
