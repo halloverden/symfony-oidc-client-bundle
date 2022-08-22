@@ -42,12 +42,10 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
    * @inheritDoc
    */
   public function prepend(ContainerBuilder $container) {
-    foreach ($container->findTaggedServiceIds('hv.oidc.client_configuration') as $tags) {
-      $key = $tags[0]['key'] ?? null;
-      if (null === $key) {
-        continue;
-      }
+    $configs = $container->getExtensionConfig('hallo_verden_oidc_client');
+    $config = $this->processConfiguration(new Configuration(), $configs);
 
+    foreach (\array_keys($config['client_configurations']) as $key) {
       $this->addJwsLoaders($key, $container);
       $this->addClaimCheckers($key, $container);
     }
@@ -120,7 +118,7 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
     $jwsLoaders = [];
     foreach ($config['client_configurations'][$key]['jws_loader'] as $tokenType => $loader) {
       if (null === $loader) {
-        $loader = 'hv_oidc_client_default_' . $tokenType . '.' . $key;
+        $loader = 'hv_oidc_client_default' . '.' . $key;
       }
 
       $jwsLoaders[$tokenType] = new Reference('jose.jws_loader.' . $loader);
