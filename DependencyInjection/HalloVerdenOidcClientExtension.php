@@ -118,7 +118,7 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
     $jwsLoaders = [];
     foreach ($config['client_configurations'][$key]['jws_loader'] as $tokenType => $loader) {
       if (null === $loader) {
-        $loader = 'hv_oidc_client_default_' . $tokenType . '.' . $key;
+        $loader = 'hv_oidc_client_default' . '.' . $key;
       }
 
       $jwsLoaders[$tokenType] = new Reference('jose.jws_loader.' . $loader);
