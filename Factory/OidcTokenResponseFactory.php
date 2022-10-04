@@ -37,7 +37,7 @@ class OidcTokenResponseFactory {
   ];
 
   private OpenIdProviderServiceInterface $openIdProviderService;
-  private array $mandatoryClaims = self::MANDATORY_CLAIMS;
+  private array $mandatoryClaims;
 
   /**
    * @var array<string, JWSLoader>
@@ -60,6 +60,7 @@ class OidcTokenResponseFactory {
     $this->openIdProviderService = $openIdProviderService;
     $this->jwsLoaders = $jwsLoaders;
     $this->claimCheckers = $claimCheckers;
+    $this->setMandatoryClaims(self::MANDATORY_CLAIMS);
   }
 
   /**
@@ -85,11 +86,22 @@ class OidcTokenResponseFactory {
   }
 
   /**
-   * @param string[] $mandatoryClaims
+   * @param string[]|array<string, array> $mandatoryClaims
    *
    * @return self
    */
   public function setMandatoryClaims(array $mandatoryClaims): self {
+    if (\array_is_list($mandatoryClaims)) {
+      $this->mandatoryClaims = [
+        OidcTokenInterface::TYPE_ACCESS => $mandatoryClaims,
+        OidcTokenInterface::TYPE_ACCESS_CLIENT_CREDENTIALS => $mandatoryClaims,
+        OidcTokenInterface::TYPE_ID => $mandatoryClaims,
+        OidcTokenInterface::TYPE_REFRESH => $mandatoryClaims,
+      ];
+
+      return $this;
+    }
+
     $this->mandatoryClaims = $mandatoryClaims;
     return $this;
   }
@@ -175,7 +187,7 @@ class OidcTokenResponseFactory {
     $jws = $this->getJwsLoader($type)->loadAndVerifyWithKeySet($jwtString, $this->openIdProviderService->getPublicKey(), $signature);
 
     $claims = JsonConverter::decode($jws->getPayload());
-    $this->getClaimChecker($type)->check($claims, $this->mandatoryClaims);
+    $this->getClaimChecker($type)->check($claims, $this->getMandatoryClaims($type));
 
     $headers = $jws->getSignature($signature)->getProtectedHeader();
     return $claims;
@@ -197,6 +209,15 @@ class OidcTokenResponseFactory {
    */
   private function getClaimChecker(string $type): ClaimCheckerManager {
     return $this->claimCheckers[$type];
+  }
+
+  /**
+   * @param string $type
+   *
+   * @return string[]
+   */
+  private function getMandatoryClaims(string $type): array {
+    return $this->mandatoryClaims[$type] ?? [];
   }
 
 }
