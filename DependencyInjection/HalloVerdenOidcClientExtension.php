@@ -11,6 +11,7 @@ use Jose\Bundle\JoseFramework\Helper\ConfigurationHelper;
 use Jose\Component\Checker\AudienceChecker;
 use Jose\Component\Core\JWKSet;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -76,6 +77,8 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
         ['setPkceEnabled', [$clientConfigurationArray['pkce_enabled']]],
         ['setStateParameterLength', [$clientConfigurationArray['state_parameter_length']]],
         ['setNonceParameterLength', [$clientConfigurationArray['nonce_parameter_length']]],
+        ['setJwkId', [$clientConfigurationArray['jwk_id']]],
+        ['setJwtSerializer', [$clientConfigurationArray['jwt_serializer']]]
       ],
     );
 
@@ -138,7 +141,9 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
       '$client' => new Reference('http_client'),
       '$serializer' => new Reference('jms_serializer'),
       '$jwsLoaders' => $jwsLoaders,
-      '$claimCheckers' => $claimCheckers
+      '$claimCheckers' => $claimCheckers,
+      '$mandatoryClaims' => $config['client_configurations'][$key]['mandatory_claims'],
+      '$grantHandlers' => new TaggedIteratorArgument('hv_oidc_client.grant_handler')
     ]);
     $openIdProviderService->addTag('hv.oidc.openid_provider_service', ['key' => $key]);
     $openIdProviderServiceId = 'hv.oidc.openid_provider.' . $key;

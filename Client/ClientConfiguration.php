@@ -18,6 +18,8 @@ class ClientConfiguration {
   private bool $pkceEnabled = false;
   private int $stateParameterLength = 10;
   private int $nonceParameterLength = 10;
+  private ?string $jwkId;
+  private string $jwtSerializer;
 
   /**
    * ClientConfiguration constructor.
@@ -255,6 +257,40 @@ class ClientConfiguration {
    */
   public function setNonceParameterLength(int $nonceParameterLength): self {
     $this->nonceParameterLength = $nonceParameterLength;
+    return $this;
+  }
+
+  /**
+   * @return string|null
+   */
+  public function getJwkId(): ?string {
+    return $this->jwkId;
+  }
+
+  /**
+   * @param string|null $jwkId
+   *
+   * @return self
+   */
+  public function setJwkId(?string $jwkId): self {
+    $this->jwkId = $jwkId;
+    return $this;
+  }
+
+  /**
+   * @return string
+   */
+  public function getJwtSerializer(): string {
+    return $this->jwtSerializer;
+  }
+
+  /**
+   * @param string $jwtSerializer
+   *
+   * @return self
+   */
+  public function setJwtSerializer(string $jwtSerializer): self {
+    $this->jwtSerializer = $jwtSerializer;
     return $this;
   }
 

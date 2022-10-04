@@ -4,6 +4,7 @@
 namespace HalloVerden\Oidc\ClientBundle\DependencyInjection;
 
 
+use HalloVerden\Oidc\ClientBundle\Factory\OidcTokenResponseFactory;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -34,6 +35,18 @@ class Configuration implements ConfigurationInterface {
               ->booleanNode('pkce_enabled')->defaultFalse()->end()
               ->integerNode('state_parameter_length')->defaultValue(10)->end()
               ->integerNode('nonce_parameter_length')->defaultValue(10)->end()
+              ->scalarNode('jwk_id')->defaultNull()->end()
+              ->scalarNode('jwt_serializer')->defaultValue('jws_compact')->end()
+              ->arrayNode('mandatory_claims')
+                ->ignoreExtraKeys()
+                ->addDefaultsIfNotSet()
+                ->children()
+                  ->arrayNode('accesstoken')->scalarPrototype()->end()->defaultValue(OidcTokenResponseFactory::MANDATORY_CLAIMS)->end()
+                  ->arrayNode('access_token_client_credentials')->scalarPrototype()->end()->defaultValue(OidcTokenResponseFactory::MANDATORY_CLAIMS)->end()
+                  ->arrayNode('idtoken')->scalarPrototype()->end()->defaultValue(OidcTokenResponseFactory::MANDATORY_CLAIMS)->end()
+                  ->arrayNode('refreshtoken')->scalarPrototype()->end()->defaultValue(OidcTokenResponseFactory::MANDATORY_CLAIMS)->end()
+                ->end()
+              ->end()
               ->arrayNode('jws_loader')
                 ->ignoreExtraKeys()
                 ->addDefaultsIfNotSet()
