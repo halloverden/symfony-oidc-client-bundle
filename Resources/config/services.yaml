@@ -31,3 +31,32 @@ services:
             - [ 'refreshtoken' ]
         tags:
             - { name: 'jose.checker.claim', alias: 'token_type.refreshtoken' }
+
+    hv_oidc_client.jwt_service:
+        class: HalloVerden\Oidc\ClientBundle\Services\JwtService
+        arguments:
+            $jwsBuilderFactory: '@Jose\Bundle\JoseFramework\Services\JWSBuilderFactory'
+            $jwsSerializerManagerFactory: '@Jose\Component\Signature\Serializer\JWSSerializerManagerFactory'
+            $jwks: !tagged_iterator { tag: 'hv_oidc_client_jwk' }
+
+    hv_oidc_client.grant_handler.authorization_code:
+        class: HalloVerden\Oidc\ClientBundle\GrantHandler\AuthorizationCodeGrantHandler
+        tags:
+            - { name: 'hv_oidc_client.grant_handler' }
+
+    hv_oidc_client.grant_handler.client_credentials:
+        class: HalloVerden\Oidc\ClientBundle\GrantHandler\ClientCredentialsGrantHandler
+        tags:
+            - { name: 'hv_oidc_client.grant_handler' }
+
+    hv_oidc_client.grant_handler.refresh_token:
+        class: HalloVerden\Oidc\ClientBundle\GrantHandler\RefreshTokenGrantHandler
+        tags:
+            - { name: 'hv_oidc_client.grant_handler' }
+
+    hv_oidc_client.grant_handler.jws:
+        class: HalloVerden\Oidc\ClientBundle\GrantHandler\JwtGrantHandler
+        arguments:
+            $jwtService: '@hv_oidc_client.jwt_service'
+        tags:
+            - { name: 'hv_oidc_client.grant_handler' }
