@@ -62,11 +62,11 @@ class OauthAuthorizeService implements OauthAuthorizeServiceInterface {
 
       return new RedirectResponse($oauthAuthorizeRequest->getRequestUrl());
     } catch (ProviderException $e) {
+      $this->removeSession($session);
       return $this->handleErrorException($this->providerExceptionToAuthorizeException($e), $session);
     } catch (SessionNotFoundException $exception) {
-      return $this->handleErrorException(new OauthAuthorizeException(self::ERROR_MISSING_AUTHORIZE_SESSION, previous: $exception));
-    } finally {
       $this->removeSession($session);
+      return $this->handleErrorException(new OauthAuthorizeException(self::ERROR_MISSING_AUTHORIZE_SESSION, previous: $exception));
     }
   }
 
