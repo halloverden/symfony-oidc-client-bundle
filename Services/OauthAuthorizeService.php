@@ -19,6 +19,7 @@ use HalloVerden\Oidc\ClientBundle\Exception\ProviderException;
 use HalloVerden\Oidc\ClientBundle\Exception\InvalidTokenException;
 use HalloVerden\Oidc\ClientBundle\Interfaces\OauthAuthorizeServiceInterface;
 use HalloVerden\Oidc\ClientBundle\Interfaces\OpenIdProviderServiceInterface;
+use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -29,49 +30,14 @@ class OauthAuthorizeService implements OauthAuthorizeServiceInterface {
   const SESSION_STATE_KEY = 'oauth2session';
 
   /**
-   * @var OpenIdProviderServiceInterface
-   */
-  private $openIdProviderService;
-
-  /**
-   * @var SessionInterface
-   */
-  private $session;
-
-  /**
-   * @var string
-   */
-  private $authorizeSuccessUrl;
-
-  /**
-   * @var string
-   */
-  private $authorizeErrorUrl;
-
-  /**
-   * @var EventDispatcherInterface
-   */
-  private $dispatcher;
-
-  /**
    * OauthAuthorizeService constructor.
-   *
-   * @param OpenIdProviderServiceInterface $openIdProviderService
-   * @param SessionInterface               $session
-   * @param EventDispatcherInterface       $dispatcher
-   * @param string                         $authorizeSuccessUrl
-   * @param string                         $authorizeErrorUrl
    */
-  public function __construct(OpenIdProviderServiceInterface $openIdProviderService,
-                              SessionInterface $session,
-                              EventDispatcherInterface $dispatcher,
-                              string $authorizeSuccessUrl,
-                              string $authorizeErrorUrl) {
-    $this->openIdProviderService = $openIdProviderService;
-    $this->session = $session;
-    $this->authorizeSuccessUrl = $authorizeSuccessUrl;
-    $this->authorizeErrorUrl = $authorizeErrorUrl;
-    $this->dispatcher = $dispatcher;
+  public function __construct(
+    private readonly OpenIdProviderServiceInterface $openIdProviderService,
+    private readonly EventDispatcherInterface $dispatcher,
+    private readonly string $authorizeSuccessUrl,
+    private readonly string $authorizeErrorUrl
+  ) {
   }
 
   /**
@@ -82,10 +48,12 @@ class OauthAuthorizeService implements OauthAuthorizeServiceInterface {
   public function handleAuthorize(Request $request): RedirectResponse {
     $authorizeRequest = $this->getAuthorizeRequest($request);
 
+    $session = null;
     try {
+      $session = $request->getSession();
       $oauthAuthorizeRequest = $this->openIdProviderService->getAuthorizeRequest();
 
-      $this->session->set(self::SESSION_STATE_KEY, new OauthAuthorizeSession(
+      $session->set(self::SESSION_STATE_KEY, new OauthAuthorizeSession(
         $oauthAuthorizeRequest->getStateParam(),
         $authorizeRequest->getSuccessUrl() ?: $this->authorizeSuccessUrl,
         $authorizeRequest->getErrorUrl() ?: $this->authorizeErrorUrl,
@@ -94,9 +62,11 @@ class OauthAuthorizeService implements OauthAuthorizeServiceInterface {
 
       return new RedirectResponse($oauthAuthorizeRequest->getRequestUrl());
     } catch (ProviderException $e) {
-      $response = $this->handleErrorException($this->providerExceptionToAuthorizeException($e));
-      $this->removeSession();
-      return $response;
+      return $this->handleErrorException($this->providerExceptionToAuthorizeException($e), $session);
+    } catch (SessionNotFoundException $exception) {
+      return $this->handleErrorException(new OauthAuthorizeException(self::ERROR_MISSING_AUTHORIZE_SESSION, previous: $exception));
+    } finally {
+      $this->removeSession($session);
     }
   }
 
@@ -106,10 +76,12 @@ class OauthAuthorizeService implements OauthAuthorizeServiceInterface {
    * @return RedirectResponse
    */
   public function handleAuthCode(Request $request): RedirectResponse {
+    $session = null;
     try {
+      $session = $request->getSession();
       $authCodeRequest = $this->getAuthCodeRequest($request);
 
-      $oauthAuthorizeSession = $this->getOauthAuthorizeSession();
+      $oauthAuthorizeSession = $this->getOauthAuthorizeSession($session);
       $this->validateSessionState($oauthAuthorizeSession, $authCodeRequest->getState());
 
       $tokenResponse = $this->openIdProviderService->getTokenResponse(new AuthorizationCodeGrant($authCodeRequest->getCode()));
@@ -127,15 +99,15 @@ class OauthAuthorizeService implements OauthAuthorizeServiceInterface {
 
       return new RedirectResponse($oauthAuthorizeSession->getSuccessUrl());
     } catch (OauthAuthorizeException $exception) {
-      return $this->handleErrorException($exception);
+      return $this->handleErrorException($exception, $session);
     } catch (ProviderException $e) {
-      return $this->handleErrorException($this->providerExceptionToAuthorizeException($e));
+      return $this->handleErrorException($this->providerExceptionToAuthorizeException($e), $session);
     } catch (InvalidTokenException $e) {
-      return $this->handleErrorException($this->tokenExceptionToAuthorizeException($e));
+      return $this->handleErrorException($this->tokenExceptionToAuthorizeException($e), $session);
     } catch (\Throwable $e) {
-      return $this->handleErrorException(new OauthAuthorizeException(self::ERROR_UNKNOWN_ERROR, $e->getMessage(), $e));
+      return $this->handleErrorException(new OauthAuthorizeException(self::ERROR_UNKNOWN_ERROR, $e->getMessage(), $e), $session);
     } finally {
-      $this->removeSession();
+      $this->removeSession($session);
     }
   }
 
@@ -164,11 +136,13 @@ class OauthAuthorizeService implements OauthAuthorizeServiceInterface {
   }
 
   /**
+   * @param SessionInterface $session
+   *
    * @return OauthAuthorizeSession
    * @throws OauthAuthorizeException
    */
-  private function getOauthAuthorizeSession(): OauthAuthorizeSession {
-    $oauthAuthorizeSession = $this->session->get(self::SESSION_STATE_KEY);
+  private function getOauthAuthorizeSession(SessionInterface $session): OauthAuthorizeSession {
+    $oauthAuthorizeSession = $session->get(self::SESSION_STATE_KEY);
 
     if (!$oauthAuthorizeSession instanceof OauthAuthorizeSession) {
       throw new OauthAuthorizeException(self::ERROR_MISSING_AUTHORIZE_SESSION);
@@ -203,17 +177,12 @@ class OauthAuthorizeService implements OauthAuthorizeServiceInterface {
 
   /**
    * @param OauthAuthorizeException $exception
+   * @param SessionInterface|null   $session
    *
    * @return string
    */
-  private function createErrorUrl(OauthAuthorizeException $exception): string {
-    try {
-      $url = $this->getOauthAuthorizeSession()->getErrorUrl();
-    } catch (OauthAuthorizeException $e) {
-      $url = $this->authorizeErrorUrl;
-    }
-
-    return (new URIHelper($url))
+  private function createErrorUrl(OauthAuthorizeException $exception, ?SessionInterface $session = null): string {
+    return (new URIHelper($this->getAuthorizeUrl($session)))
       ->addQueryParameter('error', $exception->getError())
       ->toString();
   }
@@ -258,19 +227,41 @@ class OauthAuthorizeService implements OauthAuthorizeServiceInterface {
 
   /**
    * @param OauthAuthorizeException $exception
+   * @param SessionInterface|null   $session
    *
    * @return RedirectResponse
    */
-  private function handleErrorException(OauthAuthorizeException $exception): RedirectResponse {
+  private function handleErrorException(OauthAuthorizeException $exception, ?SessionInterface $session = null): RedirectResponse {
     $this->dispatcher->dispatch(new AuthorizationErrorEvent($this->openIdProviderService, $exception));
-    return new RedirectResponse($this->createErrorUrl($exception));
+    return new RedirectResponse($this->createErrorUrl($exception, $session));
   }
 
   /**
    * Remove session
    */
-  private function removeSession(): void {
-    $this->session->remove(self::SESSION_STATE_KEY);
+  private function removeSession(?SessionInterface $session = null): void {
+    if (null === $session) {
+      return;
+    }
+
+    $session->remove(self::SESSION_STATE_KEY);
+  }
+
+  /**
+   * @param SessionInterface|null $session
+   *
+   * @return string
+   */
+  private function getAuthorizeUrl(?SessionInterface $session = null): string {
+    if (null === $session) {
+      return $this->authorizeErrorUrl;
+    }
+
+    try {
+      return $this->getOauthAuthorizeSession($session)->getErrorUrl();
+    } catch (OauthAuthorizeException) {
+      return $this->authorizeErrorUrl;
+    }
   }
 
 }
