@@ -53,7 +53,8 @@ final class JwtGrantHandler implements GrantHandlerInterface {
       'iss' => $clientConfiguration->getClientId(),
       'scope' => $clientConfiguration->getScope(),
       'iat' => $now,
-      'exp' => $now + 120
+      'exp' => $now + 120,
+      ...$clientConfiguration->getJtwCustomClaims()
     ];
 
     return $this->jwtService->createJwt(JsonConverter::encode($payload), $clientConfiguration->getJwkId(), $clientConfiguration->getJwtSerializer());

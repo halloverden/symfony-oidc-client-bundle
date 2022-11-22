@@ -20,6 +20,7 @@ class ClientConfiguration {
   private int $nonceParameterLength = 10;
   private ?string $jwkId;
   private string $jwtSerializer;
+  private array $jtwCustomClaims = [];
 
   /**
    * ClientConfiguration constructor.
@@ -291,6 +292,23 @@ class ClientConfiguration {
    */
   public function setJwtSerializer(string $jwtSerializer): self {
     $this->jwtSerializer = $jwtSerializer;
+    return $this;
+  }
+
+  /**
+   * @return array
+   */
+  public function getJtwCustomClaims(): array {
+    return $this->jtwCustomClaims;
+  }
+
+  /**
+   * @param array $jtwCustomClaims
+   *
+   * @return self
+   */
+  public function setJtwCustomClaims(array $jtwCustomClaims): self {
+    $this->jtwCustomClaims = $jtwCustomClaims;
     return $this;
   }
 

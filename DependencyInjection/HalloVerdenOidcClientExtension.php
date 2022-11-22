@@ -78,7 +78,8 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
         ['setStateParameterLength', [$clientConfigurationArray['state_parameter_length']]],
         ['setNonceParameterLength', [$clientConfigurationArray['nonce_parameter_length']]],
         ['setJwkId', [$clientConfigurationArray['jwk_id']]],
-        ['setJwtSerializer', [$clientConfigurationArray['jwt_serializer']]]
+        ['setJwtSerializer', [$clientConfigurationArray['jwt_serializer']]],
+        ['setJtwCustomClaims', [$clientConfigurationArray['jwt_custom_claims']]]
       ],
     );
 
