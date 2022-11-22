@@ -37,6 +37,7 @@ class Configuration implements ConfigurationInterface {
               ->integerNode('nonce_parameter_length')->defaultValue(10)->end()
               ->scalarNode('jwk_id')->defaultNull()->end()
               ->scalarNode('jwt_serializer')->defaultValue('jws_compact')->end()
+              ->arrayNode('jwt_custom_claims')->defaultValue([])->scalarPrototype()->end()->end()
               ->arrayNode('mandatory_claims')
                 ->ignoreExtraKeys()
                 ->addDefaultsIfNotSet()
