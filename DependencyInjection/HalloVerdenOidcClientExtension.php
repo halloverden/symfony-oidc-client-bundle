@@ -83,7 +83,7 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
     );
 
     if (isset($clientConfiguration['client_id'])) {
-      $clientConfiguration->addMethodCall('setClientId', $clientConfigurationArray['client_id']);
+      $clientConfiguration->addMethodCall('setClientId', [$clientConfigurationArray['client_id']]);
     }
 
     $clientConfiguration->addTag('hv.oidc.client_configuration', ['key' => $key]);
