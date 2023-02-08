@@ -193,7 +193,7 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
     ]);
     $audienceChecker->addTag('jose.checker.claim', ['alias' => 'hv_oidc_client_aud_default.' . $key]);
 
-    $container->setDefinition('hv.oidc.claim_checker.aud.' . $key, $audienceChecker); // specifying
+    $container->setDefinition('hv.oidc.claim_checker.aud.' . $key, $audienceChecker);
   }
 
   /**
