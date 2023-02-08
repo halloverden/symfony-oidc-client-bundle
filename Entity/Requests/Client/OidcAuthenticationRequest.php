@@ -38,9 +38,14 @@ class OidcAuthenticationRequest implements OidcAuthenticationRequestInterface {
    * @return $this
    */
   public static function createFromConfigs(ClientConfiguration $clientConfiguration, ProviderConfiguration $providerConfiguration): self {
+    $clientId = $clientConfiguration->getClientId();
+    if (null === $clientId) {
+      throw new \RuntimeException('"client_id" is required to create authentication request.');
+    }
+
     $request = (new static())
       ->setScope($clientConfiguration->getScope())
-      ->setClientId($clientConfiguration->getClientId())
+      ->setClientId($clientId)
       ->setRedirectUri($clientConfiguration->getRedirectUri())
       ->setResponseType($clientConfiguration->getResponseType())
       ->setNonce(RandomHelper::generateRandomString($clientConfiguration->getNonceParameterLength(), true))

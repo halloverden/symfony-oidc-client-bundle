@@ -22,7 +22,7 @@ class Configuration implements ConfigurationInterface {
         ->arrayNode('client_configurations')
           ->arrayPrototype()
             ->children()
-              ->scalarNode('issuer')->isRequired()->end()
+              ->scalarNode('issuer')->defaultNull()->end()
               ->scalarNode('client_id')->defaultNull()->end()
               ->scalarNode('client_secret')->defaultNull()->end()
               ->scalarNode('redirect_uri')->defaultNull()->end()

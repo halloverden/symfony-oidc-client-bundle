@@ -65,7 +65,6 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
 
     $clientConfiguration->setMethodCalls(
       [
-        ['setClientId', [$clientConfigurationArray['client_id']]],
         ['setClientSecret', [$clientConfigurationArray['client_secret']]],
         ['setRedirectUri', [$clientConfigurationArray['redirect_uri']]],
         ['setOpenIdConfigurationEndpoint', [$clientConfigurationArray['openid_configuration_endpoint']]],
@@ -82,6 +81,10 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
         ['setJtwCustomClaims', [$clientConfigurationArray['jwt_custom_claims']]]
       ],
     );
+
+    if (isset($clientConfigurationArray['client_id'])) {
+      $clientConfiguration->addMethodCall('setClientId', [$clientConfigurationArray['client_id']]);
+    }
 
     $clientConfiguration->addTag('hv.oidc.client_configuration', ['key' => $key]);
 

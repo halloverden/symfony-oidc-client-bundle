@@ -5,8 +5,8 @@ namespace HalloVerden\Oidc\ClientBundle\Client;
 
 
 class ClientConfiguration {
-  private string $issuer;
-  private string $clientId;
+  private ?string $issuer;
+  private ?string $clientId = null;
   private ?string $secret = null;
   private ?string $redirectUri = null;
   private ?string $openIdConfigurationEndpoint = null;
@@ -25,16 +25,16 @@ class ClientConfiguration {
   /**
    * ClientConfiguration constructor.
    *
-   * @param string $issuer
+   * @param string|null $issuer
    */
-  public function __construct(string $issuer) {
+  public function __construct(string $issuer = null) {
     $this->issuer = $issuer;
   }
 
   /**
-   * @return string
+   * @return string|null
    */
-  public function getIssuer(): string {
+  public function getIssuer(): ?string {
     return $this->issuer;
   }
 
@@ -49,9 +49,9 @@ class ClientConfiguration {
   }
 
   /**
-   * @return string
+   * @return string|null
    */
-  public function getClientId(): string {
+  public function getClientId(): ?string {
     return $this->clientId;
   }
 
