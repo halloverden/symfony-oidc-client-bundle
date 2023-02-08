@@ -48,7 +48,7 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
 
     foreach (\array_keys($config['client_configurations']) as $key) {
       $this->addJwsLoaders($key, $container);
-      $this->addClaimCheckers($key, $container);
+      $this->addClaimCheckers($key, $container, $config);
     }
   }
 
@@ -184,12 +184,16 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
    * @return void
    */
   private function registerAudienceChecker(string $key, array $config, ContainerBuilder $container): void {
+    if (!isset($config['client_id'])) {
+      return;
+    }
+
     $audienceChecker = new Definition(AudienceChecker::class, [
       '$audience' => $config['client_id']
     ]);
     $audienceChecker->addTag('jose.checker.claim', ['alias' => 'hv_oidc_client_aud_default.' . $key]);
 
-    $container->setDefinition('hv.oidc.claim_checker.aud.' . $key, $audienceChecker);
+    $container->setDefinition('hv.oidc.claim_checker.aud.' . $key, $audienceChecker); // specifying
   }
 
   /**
@@ -211,10 +215,11 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
   /**
    * @param string           $key
    * @param ContainerBuilder $container
+   * @param array            $config
    *
    * @return void
    */
-  private function addClaimCheckers(string $key, ContainerBuilder $container): void {
+  private function addClaimCheckers(string $key, ContainerBuilder $container, array $config): void {
     ConfigurationHelper::addClaimChecker(
       $container,
       'hv_oidc_client_default_accesstoken.' . $key,
@@ -227,10 +232,15 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
       ['exp', 'iat', 'nbf', 'token_type.access_token_client_credentials']
     );
 
+    $idTokenClaimCheckers = ['exp', 'iat', 'nbf', 'token_type.idtoken'];
+    if (isset($config['client_id'])) {
+      $idTokenClaimCheckers[] = 'hv_oidc_client_aud_default.' . $key;
+    }
+
     ConfigurationHelper::addClaimChecker(
       $container,
       'hv_oidc_client_default_idtoken.' . $key,
-      ['exp', 'iat', 'nbf', 'token_type.idtoken', 'hv_oidc_client_aud_default.' . $key]
+      $idTokenClaimCheckers
     );
 
     ConfigurationHelper::addClaimChecker(
