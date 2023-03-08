@@ -81,6 +81,8 @@ class OpenIdProviderService implements OpenIdProviderServiceInterface {
       return $this->publicKey;
     }
 
+    die('xdd');
+
     try {
       $response = $this->client->request(Request::METHOD_GET, $this->getProviderConfiguration()->getJwksUri());
       return $this->publicKey = JWKSet::createFromJson($response->getContent());
