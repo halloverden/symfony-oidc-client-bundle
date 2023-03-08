@@ -172,6 +172,7 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
     $jwkSetService = new Definition(JWKSet::class);
     $jwkSetService->setFactory([new Reference('hv.oidc.openid_provider.' . $key), 'getPublicKey']);
     $jwkSetService->addTag('jose.jwkset');
+    $jwkSetService->setLazy(true);
 
     $container->setDefinition('jose.key_set.hv_oidc_client.' . $key, $jwkSetService);
   }
