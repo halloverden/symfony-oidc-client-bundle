@@ -6,13 +6,14 @@ namespace HalloVerden\Oidc\ClientBundle\DependencyInjection;
 
 use HalloVerden\Oidc\ClientBundle\Client\ClientConfiguration;
 use HalloVerden\Oidc\ClientBundle\Interfaces\OpenIdProviderServiceInterface;
+use HalloVerden\Oidc\ClientBundle\Jwt\CachedJwkSet;
 use HalloVerden\Oidc\ClientBundle\Services\OpenIdProviderService;
 use Jose\Bundle\JoseFramework\Helper\ConfigurationHelper;
 use Jose\Component\Checker\AudienceChecker;
-use Jose\Component\Core\JWKSet;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Argument\TaggedIteratorArgument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
@@ -169,8 +170,10 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
    * @return void
    */
   private function registerJwkSet(string $key, ContainerBuilder $container): void {
-    $jwkSetService = new Definition(JWKSet::class);
-    $jwkSetService->setFactory([new Reference('hv.oidc.openid_provider.' . $key), 'getPublicKey']);
+    $jwkSetService = new Definition(CachedJwkSet::class, [
+      '$openIdProviderService' => new Reference('hv.oidc.openid_provider.' . $key),
+      '$cache' => new Reference('cache.app', ContainerInterface::NULL_ON_INVALID_REFERENCE)
+    ]);
     $jwkSetService->addTag('jose.jwkset');
 
     $container->setDefinition('jose.key_set.hv_oidc_client.' . $key, $jwkSetService);
