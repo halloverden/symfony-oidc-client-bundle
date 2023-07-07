@@ -133,7 +133,7 @@ class OidcTokenResponseFactory {
    */
   private function createIdToken(string $jwtTokenString, string $jwtAccessTokenString, OidcGrantInterface $grant): OidcIdTokenInterface {
     try {
-      $jwt = $this->createJWT($jwtTokenString, OidcTokenInterface::TYPE_ID, $headers, true);
+      $jwt = $this->createJWT($jwtTokenString, OidcTokenInterface::TYPE_ID, $headers);
     } catch (\Exception $e) {
       throw new InvalidIdTokenException($e->getMessage());
     }
@@ -176,15 +176,21 @@ class OidcTokenResponseFactory {
    * @param string     $jwtString
    * @param string     $type
    * @param array|null $headers
-   * @param bool       $audIsClientId
    *
    * @return array
    * @throws ProviderException
    * @throws \JsonException
    * @throws \Exception
    */
-  private function createJWT(string $jwtString, string $type, ?array &$headers = null, bool $audIsClientId = false): array {
-    $jws = $this->getJwsLoader($type)->loadAndVerifyWithKeySet($jwtString, $this->openIdProviderService->getPublicKey(), $signature);
+  private function createJWT(string $jwtString, string $type, ?array &$headers = null): array {
+    $jwsLoader = $this->getJwsLoader($type);
+
+    if ($this->openIdProviderService->getClientConfiguration()->isValidateAccessTokens()) {
+      $jws = $jwsLoader->loadAndVerifyWithKeySet($jwtString, $this->openIdProviderService->getPublicKey(), $signature);
+    } else {
+      $jws = $jwsLoader->getSerializerManager()->unserialize($jwtString);
+      $signature = 0;
+    }
 
     $claims = JsonConverter::decode($jws->getPayload());
     $this->getClaimChecker($type)->check($claims, $this->getMandatoryClaims($type));
