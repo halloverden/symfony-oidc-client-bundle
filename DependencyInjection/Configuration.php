@@ -38,6 +38,7 @@ class Configuration implements ConfigurationInterface {
               ->scalarNode('jwk_id')->defaultNull()->end()
               ->scalarNode('jwt_serializer')->defaultValue('jws_compact')->end()
               ->arrayNode('jwt_custom_claims')->defaultValue([])->scalarPrototype()->end()->end()
+              ->booleanNode('validate_access_tokens')->defaultTrue()->end()
               ->arrayNode('mandatory_claims')
                 ->ignoreExtraKeys()
                 ->addDefaultsIfNotSet()

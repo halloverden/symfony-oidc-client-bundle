@@ -21,6 +21,7 @@ class ClientConfiguration {
   private ?string $jwkId;
   private string $jwtSerializer;
   private array $jtwCustomClaims = [];
+  private bool $validateAccessTokens = true;
 
   /**
    * ClientConfiguration constructor.
@@ -309,6 +310,23 @@ class ClientConfiguration {
    */
   public function setJtwCustomClaims(array $jtwCustomClaims): self {
     $this->jtwCustomClaims = $jtwCustomClaims;
+    return $this;
+  }
+
+  /**
+   * @return bool
+   */
+  public function isValidateAccessTokens(): bool {
+    return $this->validateAccessTokens;
+  }
+
+  /**
+   * @param bool $validateAccessTokens
+   *
+   * @return static
+   */
+  public function setValidateAccessTokens(bool $validateAccessTokens): static {
+    $this->validateAccessTokens = $validateAccessTokens;
     return $this;
   }
 
