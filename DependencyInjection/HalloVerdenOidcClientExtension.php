@@ -5,8 +5,10 @@ namespace HalloVerden\Oidc\ClientBundle\DependencyInjection;
 
 
 use HalloVerden\Oidc\ClientBundle\Client\ClientConfiguration;
+use HalloVerden\Oidc\ClientBundle\Interfaces\ClientCredentialsTokenProviderServiceInterface;
 use HalloVerden\Oidc\ClientBundle\Interfaces\OpenIdProviderServiceInterface;
 use HalloVerden\Oidc\ClientBundle\Jwt\CachedJwkSet;
+use HalloVerden\Oidc\ClientBundle\Services\ClientCredentialsTokenProviderService;
 use HalloVerden\Oidc\ClientBundle\Services\OpenIdProviderService;
 use Jose\Bundle\JoseFramework\Helper\ConfigurationHelper;
 use Jose\Component\Checker\AudienceChecker;
@@ -34,6 +36,7 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
       $this->registerOpenIdProviderService($clientConfiguration, $key, $config, $container);
       $this->registerJwkSet($key, $container);
       $this->registerAudienceChecker($key, $clientConfigurationArray, $container);
+      $this->registerClientCredentialsTokenProviderService($key, $clientConfigurationArray, $container, $key === ($config['default_client_configuration'] ?? null));
     }
 
     $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
@@ -198,6 +201,36 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
     $audienceChecker->addTag('jose.checker.claim', ['alias' => 'hv_oidc_client_aud_default.' . $key]);
 
     $container->setDefinition('hv.oidc.claim_checker.aud.' . $key, $audienceChecker);
+  }
+
+  /**
+   * @param string           $key
+   * @param array            $config
+   * @param ContainerBuilder $container
+   * @param bool             $default
+   *
+   * @return void
+   */
+  private function registerClientCredentialsTokenProviderService(string $key, array $config, ContainerBuilder $container, bool $default): void {
+    if (!isset($config['client_id'])) {
+      return;
+    }
+
+    $clientCredentialsTokenProviderService = new Definition(ClientCredentialsTokenProviderService::class, [
+      '$openIdProviderService' => new Reference('hv.oidc.openid_provider.' . $key),
+      '$cache' => new Reference($config['cache']),
+      '$cacheKey' => 'hv.oidc.client_credentials_token_provider.cache.' . $key,
+    ]);
+    $clientCredentialsTokenProviderService->addTag('hv.oidc.client_credentials_token_provider', ['key' => $key]);
+
+    $clientCredentialsTokenProviderId = 'hv.oidc.client_credentials_token_provider.' . $key;
+    $container->setDefinition($clientCredentialsTokenProviderId, $clientCredentialsTokenProviderService);
+
+    if ($default) {
+      $defaultClientCredentialsTokenProviderId = 'hv.oidc.client_credentials_token_provider.default';
+      $container->setAlias($defaultClientCredentialsTokenProviderId, $clientCredentialsTokenProviderId);
+      $container->setAlias(ClientCredentialsTokenProviderServiceInterface::class , $defaultClientCredentialsTokenProviderId);
+    }
   }
 
   /**
