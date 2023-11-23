@@ -33,6 +33,7 @@ class Configuration implements ConfigurationInterface {
               ->scalarNode('ui_locales')->defaultNull()->end()
               ->scalarNode('scope')->defaultValue('openid')->end()
               ->booleanNode('pkce_enabled')->defaultFalse()->end()
+              ->scalarNode('cache')->defaultValue('cache.app')->end()
               ->integerNode('state_parameter_length')->defaultValue(10)->end()
               ->integerNode('nonce_parameter_length')->defaultValue(10)->end()
               ->scalarNode('jwk_id')->defaultNull()->end()
