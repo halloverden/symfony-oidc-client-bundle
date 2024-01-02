@@ -18,6 +18,13 @@ services:
         tags:
             - { name: 'jose.checker.claim', alias: 'token_type.access_token_client_credentials' }
 
+    hv_oidc_client.token_type_checker.access_token_public_client_credentials:
+        class: HalloVerden\Oidc\ClientBundle\Jwt\ClaimChecker\TokenTypeChecker
+        arguments:
+            - [ 'access_token_public_client_credentials' ]
+        tags:
+            - { name: 'jose.checker.claim', alias: 'token_type.access_token_public_client_credentials' }
+
     hv_oidc_client.token_type_checker.idtoken:
         class: HalloVerden\Oidc\ClientBundle\Jwt\ClaimChecker\TokenTypeChecker
         arguments:
