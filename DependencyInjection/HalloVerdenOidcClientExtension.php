@@ -269,6 +269,12 @@ class HalloVerdenOidcClientExtension extends Extension implements PrependExtensi
       ['exp', 'iat', 'nbf', 'token_type.access_token_client_credentials']
     );
 
+    ConfigurationHelper::addClaimChecker(
+      $container,
+      'hv_oidc_client_default_access_token_public_client_credentials.' . $key,
+      ['exp', 'iat', 'nbf', 'token_type.access_token_public_client_credentials']
+    );
+
     $idTokenClaimCheckers = ['exp', 'iat', 'nbf', 'token_type.idtoken'];
     if (isset($config['client_id'])) {
       $idTokenClaimCheckers[] = 'hv_oidc_client_aud_default.' . $key;
