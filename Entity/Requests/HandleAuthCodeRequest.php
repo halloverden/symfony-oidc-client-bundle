@@ -3,11 +3,7 @@
 
 namespace HalloVerden\Oidc\ClientBundle\Entity\Requests;
 
-/**
- * Class HandleAuthCodeRequest
- *
- * @package HalloVerden\Oidc\ClientBundle\Entity\Requests
- */
+
 class HandleAuthCodeRequest {
 
   /**
