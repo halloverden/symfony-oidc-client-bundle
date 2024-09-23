@@ -10,11 +10,7 @@ use HalloVerden\Oidc\ClientBundle\Helpers\Base64Helper;
 use HalloVerden\Oidc\ClientBundle\Helpers\RandomHelper;
 use HalloVerden\Oidc\ClientBundle\Provider\ProviderConfiguration;
 
-/**
- * Class OidcAuthenticationRequest
- *
- * @package HalloVerden\Oidc\ClientBundle\Entity\Requests\Client
- */
+
 class OidcAuthenticationRequest implements OidcAuthenticationRequestInterface {
   private string $scope;
   private string $clientId;

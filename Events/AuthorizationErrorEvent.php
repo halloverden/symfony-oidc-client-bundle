@@ -7,11 +7,7 @@ namespace HalloVerden\Oidc\ClientBundle\Events;
 use HalloVerden\Oidc\ClientBundle\Exception\OauthAuthorizeException;
 use HalloVerden\Oidc\ClientBundle\Interfaces\OpenIdProviderServiceInterface;
 
-/**
- * Class AuthorizationErrorEvent
- *
- * @package HalloVerden\Oidc\ClientBundle\Events
- */
+
 class AuthorizationErrorEvent {
 
   /**

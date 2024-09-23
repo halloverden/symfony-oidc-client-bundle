@@ -8,11 +8,7 @@ use HalloVerden\Contracts\Oidc\Tokens\OidcIdTokenInterface;
 use HalloVerden\Contracts\Oidc\Tokens\OidcRefreshTokenInterface;
 use HalloVerden\Oidc\ClientBundle\Interfaces\OidcTokenResponseInterface;
 
-/**
- * Class OidcTokenResponse
- *
- * @package HalloVerden\Oidc\ClientBundle\Entity\Responses
- */
+
 class OidcTokenResponse implements OidcTokenResponseInterface {
 
   /**

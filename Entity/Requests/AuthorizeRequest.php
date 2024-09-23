@@ -3,11 +3,7 @@
 
 namespace HalloVerden\Oidc\ClientBundle\Entity\Requests;
 
-/**
- * Class OauthAuthorizeRequest
- *
- * @package App\Entity\Requests
- */
+
 class AuthorizeRequest {
 
   /**

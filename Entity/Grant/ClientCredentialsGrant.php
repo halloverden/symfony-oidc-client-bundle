@@ -6,11 +6,6 @@ namespace HalloVerden\Oidc\ClientBundle\Entity\Grant;
 
 use HalloVerden\Oidc\ClientBundle\Interfaces\Grant\OidcGrantInterface;
 
-/**
- * Class ClientCredentialsGrant
- *
- * @package HalloVerden\Oidc\ClientBundle\Entity\Grant
- */
 class ClientCredentialsGrant implements OidcGrantInterface {
   const TYPE_NAME = 'client_credentials';
 
