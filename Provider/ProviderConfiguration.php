@@ -60,7 +60,7 @@ class ProviderConfiguration {
   private bool $claimsParameterSupported;
 
   #[Serializer\SerializedName('request_parameter_supported')]
-  private $requestParameterSupported;
+  private bool $requestParameterSupported;
 
   #[Serializer\SerializedName('request_uri_parameter_supported')]
   private bool $requestUriParameterSupported;
