@@ -5,175 +5,68 @@ namespace HalloVerden\Oidc\ClientBundle\Provider;
 
 use JMS\Serializer\Annotation as Serializer;
 
-/**
- * Class ProviderConfiguration
- *
- * @package HalloVerden\Oidc\ClientBundle\Provider
- *
- * @Serializer\ExclusionPolicy("ALL")
- */
 class ProviderConfiguration {
 
-  /**
-   * @var string
-   *
-   * @Serializer\SerializedName("issuer")
-   * @Serializer\Type(name="string")
-   * @Serializer\Expose()
-   */
-  private $issuer;
+  #[Serializer\SerializedName('issuer')]
+  private string $issuer;
 
-  /**
-   * @var string
-   *
-   * @Serializer\SerializedName("authorization_endpoint")
-   * @Serializer\Type(name="string")
-   * @Serializer\Expose()
-   */
-  private $authorizationEndpoint;
+  #[Serializer\SerializedName('authorization_endpoint')]
+  private string $authorizationEndpoint;
 
-  /**
-   * @var string
-   *
-   * @Serializer\SerializedName("token_endpoint")
-   * @Serializer\Type(name="string")
-   * @Serializer\Expose()
-   */
-  private $tokenEndpoint;
+  #[Serializer\SerializedName('token_endpoint')]
+  private string $tokenEndpoint;
 
-  /**
-   * @var string
-   *
-   * @Serializer\SerializedName("userinfo_endpoint")
-   * @Serializer\Type(name="string")
-   * @Serializer\Expose()
-   */
-  private $userinfoEndpoint;
+  #[Serializer\SerializedName('userinfo_endpoint')]
+  private string $userinfoEndpoint;
 
-  /**
-   * @var string
-   *
-   * @Serializer\SerializedName("revocation_endpoint")
-   * @Serializer\Type(name="string")
-   * @Serializer\Expose()
-   */
-  private $revocationEndpoint;
+  #[Serializer\SerializedName('revocation_endpoint')]
+  private string $revocationEndpoint;
 
-  /**
-   * @var string
-   *
-   * @Serializer\SerializedName("end_session_endpoint")
-   * @Serializer\Type(name="string")
-   * @Serializer\Expose()
-   */
-  private $endSessionEndpoint;
+  #[Serializer\SerializedName('end_session_endpoint')]
+  private string $endSessionEndpoint;
 
-  /**
-   * @var string
-   *
-   * @Serializer\SerializedName("jwks_uri")
-   * @Serializer\Type(name="string")
-   * @Serializer\Expose()
-   */
-  private $jwksUri;
+  #[Serializer\SerializedName('jwks_uri')]
+  private string $jwksUri;
 
-  /**
-   * @var string[]
-   *
-   * @Serializer\SerializedName("scopes_supported")
-   * @Serializer\Type(name="array<string>")
-   * @Serializer\Expose()
-   */
-  private $scopesSupported;
+  #[Serializer\SerializedName('scopes_supported')]
+  #[Serializer\Type(name: 'array<string>')]
+  private array $scopesSupported;
 
-  /**
-   * @var string[]
-   *
-   * @Serializer\SerializedName("response_types_supported")
-   * @Serializer\Type(name="array<string>")
-   * @Serializer\Expose()
-   */
-  private $responseTypesSupported;
+  #[Serializer\SerializedName('response_types_supported')]
+  #[Serializer\Type(name: 'array<string>')]
+  private array $responseTypesSupported;
 
-  /**
-   * @var string[]
-   *
-   * @Serializer\SerializedName("response_modes_supported")
-   * @Serializer\Type(name="array<string>")
-   * @Serializer\Expose()
-   */
-  private $responseModesSupported;
+  #[Serializer\SerializedName('response_modes_supported')]
+  #[Serializer\Type(name: 'array<string>')]
+  private array $responseModesSupported;
 
-  /**
-   * @var string[]
-   *
-   * @Serializer\SerializedName("grant_types_supported")
-   * @Serializer\Type(name="array<string>")
-   * @Serializer\Expose()
-   */
-  private $grantTypesSupported;
+  #[Serializer\SerializedName('grant_types_supported')]
+  #[Serializer\Type(name: 'array<string>')]
+  private array $grantTypesSupported;
 
-  /**
-   * @var string[]
-   *
-   * @Serializer\SerializedName("subject_types_supported")
-   * @Serializer\Type(name="array<string>")
-   * @Serializer\Expose()
-   */
-  private $subjectTypesSupported;
+  #[Serializer\SerializedName('subject_types_supported')]
+  #[Serializer\Type(name: 'array<string>')]
+  private array $subjectTypesSupported;
 
-  /**
-   * @var string[]
-   *
-   * @Serializer\SerializedName("id_token_signing_alg_values_supported")
-   * @Serializer\Type(name="array<string>")
-   * @Serializer\Expose()
-   */
-  private $idTokenSigningAlgValuesSupported;
+  #[Serializer\SerializedName('id_token_signing_alg_values_supported')]
+  #[Serializer\Type(name: 'array<string>')]
+  private array $idTokenSigningAlgValuesSupported;
 
-  /**
-   * @var string[]
-   *
-   * @Serializer\SerializedName("token_endpoint_auth_methods_supported")
-   * @Serializer\Type(name="array<string>")
-   * @Serializer\Expose()
-   */
-  private $tokenEndpointAuthMethodsSupported;
+  #[Serializer\SerializedName('token_endpoint_auth_methods_supported')]
+  #[Serializer\Type(name: 'array<string>')]
+  private array $tokenEndpointAuthMethodsSupported;
 
-  /**
-   * @var bool
-   *
-   * @Serializer\SerializedName("claims_parameter_supported")
-   * @Serializer\Type(name="boolean")
-   * @Serializer\Expose()
-   */
-  private $claimsParameterSupported;
+  #[Serializer\SerializedName('claims_parameter_supported')]
+  private bool $claimsParameterSupported;
 
-  /**
-   * @var bool
-   *
-   * @Serializer\SerializedName("request_parameter_supported")
-   * @Serializer\Type(name="boolean")
-   * @Serializer\Expose()
-   */
+  #[Serializer\SerializedName('request_parameter_supported')]
   private $requestParameterSupported;
 
-  /**
-   * @var bool
-   *
-   * @Serializer\SerializedName("request_uri_parameter_supported")
-   * @Serializer\Type(name="boolean")
-   * @Serializer\Expose()
-   */
-  private $requestUriParameterSupported;
+  #[Serializer\SerializedName('request_uri_parameter_supported')]
+  private bool $requestUriParameterSupported;
 
-  /**
-   * @var array|null
-   *
-   * @Serializer\SerializedName("code_challenge_methods_supported")
-   * @Serializer\Type(name="array")
-   * @Serializer\Expose()
-   */
+  #[Serializer\SerializedName('code_challenge_methods_supported')]
+  #[Serializer\Type(name: 'array<string>')]
   private ?array $codeChallengeMethodsSupported = null;
 
   /**
